@@ -1,5 +1,5 @@
 const express = require("express");
-const { getTopics, getApi } = require("./api/controllers/topics.controllers");
+const { getTopics, getApi, getArticles } = require("./api/controllers/topics.controllers");
 const { handleBadPath, handleServerErrors } = require("./api/errors");
 
 const app = express();
@@ -7,6 +7,8 @@ const app = express();
 app.get("/api", getApi);
 
 app.get("/api/topics", getTopics);
+
+app.get("/api/articles", getArticles)
 
 app.all("*", handleBadPath);
 
