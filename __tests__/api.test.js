@@ -31,9 +31,9 @@ describe("/api/topics", () => {
 		it("400: should return with a message of 'Bad Request' when the path is not a valid endpoint", () => {
 			return request(app)
 				.get("/api/topic")
-				.expect(400)
+				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe("Bad Request");
+					expect(body.msg).toBe("Not Found");
 				});
 		});
 	});
