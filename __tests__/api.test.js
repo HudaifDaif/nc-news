@@ -74,11 +74,10 @@ describe("/api/articles", () => {
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
-
-				})
-		})
-	})
-})
+				});
+		});
+	});
+});
 
 describe("/api", () => {
 	describe("GET /api", () => {
@@ -155,9 +154,104 @@ describe("/api/articles", () => {
 				.get("/api/articles")
 				.expect(200)
 				.then(({ body }) => {
-					body.articles.forEach(article => {
-					expect(article).not.toHaveProperty("body");
+					body.articles.forEach((article) => {
+						expect(article).not.toHaveProperty("body");
+					});
+				});
+		});
+	});
+});
+
+describe("/api/articles/:article_id/comments", () => {
+	describe("POST /api/articles/:article_id/comments", () => {
+		it("200: should return a comment object for the posted comment", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					username: "lurker",
+					body: "Lorem ipsum",
 				})
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comment).toMatchObject({
+						comment_id: expect.any(Number),
+						body: "Lorem ipsum",
+						votes: 0,
+						author: "lurker",
+						article_id: 3,
+						created_at: expect.any(String),
+					});
+				});
+		});
+		it("200: should add the posted comment to the comments table", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					username: "lurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(200)
+				.then(() => {
+					return request(app)
+						.get("/api/articles/3/comments")
+						.expect(200)
+						.then(({ body }) => {
+							// console.log(body.comments);
+
+							const [testComment] = body.comments.filter(
+								(comment) => {
+									return comment.author === "lurker" &&
+										comment.body === "-->This comment!!!<--"
+										? comment
+										: null;
+								}
+							);
+
+							expect(testComment).toMatchObject({
+								comment_id: expect.any(Number),
+								body: "-->This comment!!!<--",
+								votes: 0,
+								author: "lurker",
+								article_id: 3,
+								created_at: expect.any(String),
+							});
+						});
+				});
+		});
+		it("404: should respond with a message of 'Not Found' if the article_id is valid but does not exist", () => {
+			return request(app)
+				.post("/api/articles/999999/comments")
+				.send({
+					username: "lurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' if the article_id is not valid", () => {
+			return request(app)
+				.post("/api/articles/str/comments")
+				.send({
+					username: "lurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				});
+		});
+		it("404: should respond with a message of 'Not Found' if the username is not associated to a user", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					username: "imdefinitelylurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
 				});
 		});
 	});
