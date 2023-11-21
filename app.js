@@ -2,7 +2,8 @@ const express = require("express");
 const {
 	getTopics,
     getArticleById,
-    getApi
+    getApi,
+    getArticles
 } = require("./api/controllers/topics.controllers");
 const {
 	handleBadPath,
@@ -16,6 +17,7 @@ app.get("/api", getApi);
 
 app.get("/api/topics", getTopics);
 
+app.get("/api/articles", getArticles)
 app.get("/api/articles/:article_id", getArticleById);
 
 app.all("*", handleBadPath);
