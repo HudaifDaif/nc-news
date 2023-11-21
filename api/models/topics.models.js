@@ -1,4 +1,5 @@
 const db = require("../../db/connection");
+const endpoints = require("../../endpoints");
 
 exports.selectTopics = () => {
 	return db
@@ -20,4 +21,8 @@ exports.selectArticleById = (id) => {
 			[id]
 		)
 		.then(({ rows }) => rows);
+};
+
+exports.listEndpoints = () => {
+	return endpoints;
 };

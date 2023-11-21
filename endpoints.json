@@ -1,9 +1,12 @@
 {
 	"GET /api": {
-		"description": "serves up a json representation of all the available endpoints of the api"
+		"description": "serves up a json representation of all the available endpoints of the api",
+		"requestBodyFormat": null
 	},
 	"GET /api/topics": {
 		"description": "serves an array of all topics",
+		"requestBodyFormat": null,
+
 		"queries": [],
 		"exampleResponse": {
 			"topics": [{ "slug": "football", "description": "Footie!" }]
@@ -11,6 +14,7 @@
 	},
 	"GET /api/articles": {
 		"description": "serves an array of all articles",
+		"requestBodyFormat": null,
 		"queries": ["author", "topic", "sort_by", "order"],
 		"exampleResponse": {
 			"articles": [
@@ -28,6 +32,7 @@
 	},
 	"GET /api/articles/:article_id": {
 		"description": "serves a single article with the given article_id",
+    "requestBodyFormat": null,
 		"queries": [],
 		"exampleResponse": {
 			"article": {

@@ -1,4 +1,4 @@
-const { selectTopics, selectArticleById } = require("../models/topics.models");
+const { selectTopics, selectArticleById ,listEndpoints} = require("../models/topics.models");
 
 exports.getTopics = (req, res, next) => {
 	selectTopics().then((rows) => {
@@ -17,4 +17,8 @@ exports.getArticleById = (req, res, next) => {
 			res.status(200).send({ article: rows[0] });
 		})
 		.catch(next);
+}
+
+exports.getApi = (req, res, next) => {
+	res.status(200).send(listEndpoints());
 };

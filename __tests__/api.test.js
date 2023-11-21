@@ -9,13 +9,15 @@ const {
 	commentData,
 } = require("../db/data/test-data");
 
+const endpoints = require("../endpoints.json");
+
 beforeEach(() => seed(topicData, userData, articleData, commentData));
 
 afterAll(() => db.end());
 
 describe("/api/topics", () => {
 	describe("GET /api/topics", () => {
-		it("200: should return an object containing topic objects with keys of 'slug' and 'description'", () => {
+		it("200: should respond with an object containing topic objects with keys of 'slug' and 'description'", () => {
 			return request(app)
 				.get("/api/topics")
 				.expect(200)
@@ -28,7 +30,7 @@ describe("/api/topics", () => {
 					});
 				});
 		});
-		it("400: should return with a message of 'Bad Request' when the path is not a valid endpoint", () => {
+		it("400: should respond with a message of 'Not Found' when the path is not a valid endpoint", () => {
 			return request(app)
 				.get("/api/topic")
 				.expect(404)
@@ -72,6 +74,20 @@ describe("/api/articles", () => {
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
+
+				})
+		})
+	})
+})
+
+describe("/api", () => {
+	describe("GET /api", () => {
+		it("200: should respond with an object describing all available endpoints of the api", () => {
+			return request(app)
+				.get("/api")
+				.expect(200)
+				.then(({ body }) => {
+					expect(body).toMatchObject(endpoints);
 				});
 		});
 	});

@@ -1,7 +1,8 @@
 const express = require("express");
 const {
 	getTopics,
-	getArticleById,
+    getArticleById,
+    getApi
 } = require("./api/controllers/topics.controllers");
 const {
 	handleBadPath,
@@ -9,8 +10,9 @@ const {
 	handle404,
     handlePostgresErrors,
 } = require("./api/errors");
-
 const app = express();
+
+app.get("/api", getApi);
 
 app.get("/api/topics", getTopics);
 
