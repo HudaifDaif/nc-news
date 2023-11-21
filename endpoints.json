@@ -29,5 +29,36 @@
 				}
 			]
 		}
+	},
+	"GET /api/articles/:article_id/comments": {
+		"description": "serves an array of all articles",
+		"requestBodyFormat": null,
+		"queries": [],
+		"exampleResponse": [
+			{
+				"comment_id": 2,
+				"body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+				"article_id": 1,
+				"author": "butter_bridge",
+				"votes": 14,
+				"created_at": "2020-10-31T03:03:00.000Z"
+			},
+			{
+				"comment_id": 18,
+				"body": "This morning, I showered for nine minutes.",
+				"article_id": 1,
+				"author": "butter_bridge",
+				"votes": 16,
+				"created_at": "2020-07-21T00:20:00.000Z"
+			},
+			{
+				"comment_id": 13,
+				"body": "Fruit pastilles",
+				"article_id": 1,
+				"author": "icellusedkars",
+				"votes": 0,
+				"created_at": "2020-06-15T10:25:00.000Z"
+			}
+		]
 	}
 }
