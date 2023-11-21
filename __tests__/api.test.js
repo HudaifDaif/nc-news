@@ -173,6 +173,7 @@ describe("/api/articles/:article_id/comments", () => {
 				})
 				.expect(200)
 				.then(({ body }) => {
+					console.log(body);
 					expect(body.comment).toMatchObject({
 						comment_id: expect.any(Number),
 						body: "Lorem ipsum",
@@ -196,8 +197,6 @@ describe("/api/articles/:article_id/comments", () => {
 						.get("/api/articles/3/comments")
 						.expect(200)
 						.then(({ body }) => {
-							// console.log(body.comments);
-
 							const [testComment] = body.comments.filter(
 								(comment) => {
 									return comment.author === "lurker" &&
