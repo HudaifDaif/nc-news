@@ -1,4 +1,7 @@
-const { selectTopics, listEndpoints } = require("../models/topics.models");
+const {
+	selectTopics,
+	listEndpoints,
+} = require("../models/topics.models");
 
 exports.getTopics = (req, res, next) => {
 	selectTopics().then(({ rows }) => {
