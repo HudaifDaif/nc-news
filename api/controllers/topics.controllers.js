@@ -1,14 +1,16 @@
 const { selectTopics, selectArticleById } = require("../models/topics.models");
 
 exports.getTopics = (req, res, next) => {
-	selectTopics().then(({ rows }) => {
+	selectTopics().then((rows) => {
 		res.status(200).send({ topics: rows });
 	});
 };
 
 exports.getArticleById = (req, res, next) => {
-	selectArticleById(req)
-		.then(({ rows }) => {
+	id = req.params.article_id;
+
+	selectArticleById(id)
+		.then((rows) => {
 			if (!rows.length) {
 				return Promise.reject({ status: 404 });
 			}
