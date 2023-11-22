@@ -346,3 +346,94 @@ describe("/api/articles/:article_id/comments", () => {
 		});
 	});
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+	it("200: should respond with an article object with the value of the request object's inc_votes property", () => {
+		return request(app)
+			.get("/api/articles/2")
+			.expect(200)
+			.then(({ body }) => {
+				let getBody = body;
+
+				return request(app)
+					.patch("/api/articles/2")
+					.send({
+						inc_votes: 3,
+					})
+					.expect(200)
+					.then(({ body }) => {
+						let patchBody = body;
+
+						expect(patchBody.article.votes).toBe(
+							getBody.article.votes + 3
+						);
+					});
+			});
+	});
+	it("200: should be able to decrement votes when given a negative value", () => {
+		return request(app)
+			.get("/api/articles/2")
+			.expect(200)
+			.then(({ body }) => {
+				let getBody = body;
+
+				return request(app)
+					.patch("/api/articles/2")
+					.send({
+						inc_votes: -25,
+					})
+					.expect(200)
+					.then(({ body }) => {
+						let patchBody = body;
+
+						expect(patchBody.article.votes).toBe(
+							getBody.article.votes - 25
+						);
+					});
+			});
+	});
+	it("404: should respond with a message of 'Not Found' if the article_id is valid but does not exist", () => {
+		return request(app)
+			.patch("/api/articles/999999")
+			.expect(404)
+			.send({
+				inc_votes: 0,
+			})
+			.then(({ body }) => {
+				expect(body.msg).toBe("Not Found");
+			});
+	});
+	it("400: should respond with a message of 'Bad Request' when given an invalid article_id", () => {
+		return request(app)
+			.patch("/api/articles/str")
+			.expect(400)
+			.send({
+				inc_votes: 0,
+			})
+			.then(({ body }) => {
+				expect(body.msg).toBe("Bad Request");
+			});
+	});
+	it("400: should respond with a message of 'Bad Request' when not given the correct object properties", () => {
+		return request(app)
+			.patch("/api/articles/2")
+			.expect(400)
+			.send({
+				votes: 0,
+			})
+			.then(({ body }) => {
+				expect(body.msg).toBe("Bad Request");
+			});
+	});
+	it("400: should respond with a message of 'Bad Request' when given an incorrect data type on the correct key", () => {
+		return request(app)
+			.patch("/api/articles/2")
+			.expect(400)
+			.send({
+				inc_votes: "str",
+			})
+			.then(({ body }) => {
+				expect(body.msg).toBe("Bad Request");
+			});
+	});
+});

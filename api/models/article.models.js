@@ -38,3 +38,19 @@ exports.selectArticles = () => {
         ORDER BY articles.created_at DESC
         ;`);
 };
+
+exports.updateArticle = (votes, id) => {
+	return db
+		.query(
+			`
+        UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *
+        ;`,
+			[votes, id]
+		)
+		.then(({ rows }) => {
+			return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
+		});
+};
