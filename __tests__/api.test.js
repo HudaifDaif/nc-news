@@ -41,6 +41,45 @@ describe("/api/topics", () => {
 	});
 });
 
+describe("/api/articles", () => {
+	describe("GET api/articles/:article_id", () => {
+		it("200: should respond with an object with a key of article, containing the corresponding article object", () => {
+			return request(app)
+				.get("/api/articles/12")
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.article).toMatchObject({
+						author: expect.any(String),
+						title: expect.any(String),
+						article_id: 12,
+						body: expect.any(String),
+						topic: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+					});
+				});
+		});
+		it("404: should respond with a message of 'Not Found' if the article_id is valid but does not exist", () => {
+			return request(app)
+				.get("/api/articles/9999999")
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' when given an invalid article_id", () => {
+			return request(app)
+				.get("/api/articles/str")
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+
+				})
+		})
+	})
+})
+
 describe("/api", () => {
 	describe("GET /api", () => {
 		it("200: should respond with an object describing all available endpoints of the api", () => {
@@ -55,62 +94,136 @@ describe("/api", () => {
 });
 
 describe("/api/articles", () => {
-	describe("GET /api/articles/:article_id/comments", () => {
-		it("200: should respond with an object containing an array of comment objects on the key of comments", () => {
+	describe("GET /api/articles", () => {
+		it("200: should respond with an object with a key of articles containing all article objects", () => {
 			return request(app)
-				.get("/api/articles/1/comments")
+				.get("/api/articles")
 				.expect(200)
 				.then(({ body }) => {
-					body.comments.forEach((comment) => {
-						expect(comment).toMatchObject({
-							comment_id: expect.any(Number),
-							votes: expect.any(Number),
-							created_at: expect.any(String),
+					body.articles.forEach((article) => {
+						expect(article).toMatchObject({
 							author: expect.any(String),
-							body: expect.any(String),
-							article_id: 1,
-						});
+							title: expect.any(String),
+							article_id: expect.any(Number),
+							topic: expect.any(String),
+							created_at: expect.any(String),
+							votes: expect.any(Number),
+							article_img_url: expect.any(String),
+						})
+					})
+				})
+		})
+		it("200: should respond with each object containing a comment_count property which represents the number of comments with the corresponding article_id of each article", () => {
+			return request(app)
+				.get("/api/articles")
+				.expect(200)
+				.then(({ body }) => {
+					body.articles.forEach((article) => {
+						expect(Number(article.comment_count)).not.toBe(NaN);
+
+						const verifyCommentCount = commentData.filter(
+							(comment) => {
+								return (
+									comment.article_id === article.article_id
+								);
+							}
+						).length;
+
+						expect(Number(article.comment_count)).toBe(
+							verifyCommentCount
+						);
 					});
 				});
 		});
-		it("200: should return the comments sorted by most recent first", () => {
+		it("200: should return the articles sorted by date in descending order by default", () => {
 			return request(app)
-				.get("/api/articles/1/comments")
+				.get("/api/articles")
 				.expect(200)
 				.then(({ body }) => {
-					const dateCorrected = body.comments.map((comment) => {
-						comment.created_at = Date.parse(comment.created_at);
-						return comment;
-					});
+					const dateCorrected = body.articles.map((article) => {
+						article.created_at = Date.parse(article.created_at);
+						return article;
 
+					});
 					expect(dateCorrected).toBeSortedBy("created_at", {
 						descending: true,
-					});
-				});
-		});
-		it("404: should respond with a message of 'Not Found' when given an article_id that does not exist in the table", () => {
+					})
+				})
+
+
+		})
+		it("200: should return the articles with no body property", () => {
 			return request(app)
-				.get("/api/articles/999999/comments")
-				.expect(404)
-				.then(({ body }) => {
-					expect(body.msg).toBe("Not Found");
-				});
-		});
-		it("200: should respond with an empty array on the comments key where the article_id exists but is not associated with any comments", () => {
-			return request(app)
-				.get("/api/articles/7/comments")
+				.get("/api/articles")
 				.expect(200)
 				.then(({ body }) => {
-					expect(body).toMatchObject({ comments: [] });
-				});
-		});
-		it("400: should respond with a message of 'Bad Request' when given an invalid article_id", () => {
-			return request(app)
-				.get("/api/articles/str/comments")
-				.expect(400)
-				.then(({ body }) => {
-					expect(body.msg).toBe("Bad Request");
-				});
+					body.articles.forEach(article => {
+						expect(article).not.toHaveProperty("body");
+					})
+				})
+		})
+
+		describe("GET /api/articles/:article_id/comments", () => {
+			it("200: should respond with an object containing an array of comment objects on the key of comments", () => {
+				return request(app)
+					.get("/api/articles/1/comments")
+					.expect(200)
+					.then(({ body }) => {
+						body.comments.forEach((comment) => {
+							expect(comment).toMatchObject({
+								comment_id: expect.any(Number),
+								votes: expect.any(Number),
+								created_at: expect.any(String),
+								author: expect.any(String),
+								body: expect.any(String),
+								article_id: 1,
+
+							});
+						});
+					});
+			});
+			it("200: should return the comments sorted by most recent first", () => {
+				return request(app)
+					.get("/api/articles/1/comments")
+					.expect(200)
+					.then(({ body }) => {
+						const dateCorrected = body.comments.map((comment) => {
+							comment.created_at = Date.parse(comment.created_at);
+							return comment;
+
+						});
+
+				
+					});
+			});
+
+			it("404: should respond with a message of 'Not Found' when given an article_id that does not exist in the table", () => {
+				return request(app)
+					.get("/api/articles/999999/comments")
+					.expect(404)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Not Found");
+					});
+			});
+			it("200: should respond with an empty array on the comments key where the article_id exists but is not associated with any comments", () => {
+				return request(app)
+					.get("/api/articles/7/comments")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body).toMatchObject({ comments: [] });
+					});
+			});
+			it("400: should respond with a message of 'Bad Request' when given an invalid article_id", () => {
+				return request(app)
+					.get("/api/articles/str/comments")
+					.expect(400)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Bad Request");
+
+		
+
+					});
+			});
 		});
 	});
-});
+})

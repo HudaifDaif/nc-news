@@ -1,12 +1,11 @@
 const db = require("../../db/connection");
-const endpoints = require("../../endpoints");
 
 exports.selectTopics = () => {
-	return db.query(`
+	return db
+		.query(
+			`
         SELECT * FROM topics
-        ;`);
-};
-
-exports.listEndpoints = () => {
-	return endpoints;
+        ;`
+		)
+		.then(({ rows }) => rows);
 };
