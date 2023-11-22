@@ -310,3 +310,17 @@ describe("PATCH /api/articles/:article_id", () => {
 			});
 	});
 });
+
+describe("GET /api/users", () => {
+	it('200: should return all users in database', () => {
+		return request(app).get("/api/users").expect(200).then(({ body }) => {
+			body.users.forEach(user => {
+				expect(user).toMatchObject({
+					username: expect.any(String),
+					name: expect.any(String),
+					avatar_url: expect.any(String)
+				});
+			})
+		})
+	});
+});
