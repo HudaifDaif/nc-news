@@ -1,7 +1,6 @@
 const express = require("express");
 const {
 	getTopics,
-    getArticleById,
     getApi,
     getArticles
 } = require("./api/controllers/topics.controllers");
@@ -11,7 +10,7 @@ const {
 	handle404,
     handlePostgresErrors,
 } = require("./api/errors");
-const { patchArticleById } = require("./api/controllers/article.controllers");
+const { patchArticleById, getArticleById } = require("./api/controllers/article.controllers");
 const app = express();
 
 app.get("/api", getApi);

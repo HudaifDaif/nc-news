@@ -50,5 +50,7 @@ exports.updateArticle = (votes, id) => {
         ;`,
 			[votes, id]
 		)
-		.then(({ rows }) => rows[0]);
+		.then(({ rows }) => {
+			return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
+		});
 };
