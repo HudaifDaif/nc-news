@@ -310,3 +310,39 @@ describe("PATCH /api/articles/:article_id", () => {
 			});
 	});
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+	it("204: delete the given comment by its id and respond with no content", () => {
+		return request(app)
+			.delete("/api/comments/1")
+			.expect(204)
+			.then(({ body }) => {
+				expect(body).toEqual({});
+			})
+			.then(() => {
+				return db.query(`
+				SELECT * FROM comments
+				WHERE comment_id = 1
+				;`);
+			})
+			.then(({ rows }) => {
+				expect(rows).toEqual([]);
+			});
+	});
+	it("404: should respond with a message of 'Not Found' if the comment_id is valid but does not exist", () => {
+		return request(app)
+			.delete("/api/comments/999999")
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toEqual("Not Found");
+			});
+	});
+	it("400: should respond with a message of 'Bad Request' when given an invalid comment_id", () => {
+		return request(app)
+			.delete("/api/comments/str")
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toEqual("Bad Request");
+			});
+	});
+});

@@ -1,5 +1,5 @@
 const express = require("express");
-const { getCommentsById } = require("./api/controllers/comments.controllers");
+const { getCommentsById, deleteCommentById } = require("./api/controllers/comments.controllers");
 const {
 	getTopics,
 } = require("./api/controllers/topics.controllers");
@@ -25,6 +25,8 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id/comments", getCommentsById);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
+
+app.delete("/api/comments/:comment_id",deleteCommentById);
 
 app.use(express.json());
 app.patch("/api/articles/:article_id", patchArticleById);
