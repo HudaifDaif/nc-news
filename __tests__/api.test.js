@@ -173,7 +173,6 @@ describe("/api/articles/:article_id/comments", () => {
 				})
 				.expect(200)
 				.then(({ body }) => {
-					console.log(body);
 					expect(body.comment).toMatchObject({
 						comment_id: expect.any(Number),
 						body: "Lorem ipsum",
@@ -251,6 +250,40 @@ describe("/api/articles/:article_id/comments", () => {
 				.expect(404)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should return a message of Bad Request if any fields are missing", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					body: "Lorem ipsum",
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles/3/comments")
+						.send({
+							username: "imdefinitelylurker",
+						})
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles/3/comments")
+						.send({
+							name: "imdefinitelylurker",
+							comment: "Lorem ipsum",
+						})
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
 				});
 		});
 	});
