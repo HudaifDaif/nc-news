@@ -74,11 +74,10 @@ describe("/api/articles", () => {
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
-
-				})
-		})
-	})
-})
+				});
+		});
+	});
+});
 
 describe("/api", () => {
 	describe("GET /api", () => {
@@ -155,10 +154,34 @@ describe("/api/articles", () => {
 				.get("/api/articles")
 				.expect(200)
 				.then(({ body }) => {
-					body.articles.forEach(article => {
-					expect(article).not.toHaveProperty("body");
-				})
+					body.articles.forEach((article) => {
+						expect(article).not.toHaveProperty("body");
+					});
 				});
 		});
+	});
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+	it("200: should respond with an article object with the value of the request object's inc_votes property", () => {
+		return request(app)
+			.patch("/api/articles/2")
+			.send({
+				inc_votes: 1,
+			})
+			.expect(200)
+			.then(({ body }) => {
+				expect(body.article).toMatchObject({
+					title: "Sony Vaio; or, The Laptop",
+					author: "icellusedkars",
+					article_id: 2,
+					topic: "mitch",
+					created_at: "2020-10-16T05:03:00.000Z",
+					votes: 1,
+					article_img_url:
+						"https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+					body: expect.any(String),
+				});
+			});
 	});
 });
