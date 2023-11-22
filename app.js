@@ -1,19 +1,17 @@
 const express = require("express");
+const { getApi } = require("./api/controllers/api.controllers");
+const { getTopics } = require("./api/controllers/topics.controllers");
+const { getCommentsById, postComment } = require("./api/controllers/comments.controllers");
 const {
-	getTopics,
-    getArticleById,
-    getApi,
-    getArticles
-} = require("./api/controllers/topics.controllers");
-
+	getArticles,
+	getArticleById,
+} = require("./api/controllers/article.controllers");
 const {
 	handleBadPath,
-	handleServerErrors,
+	handlePostgresErrors,
 	handle404,
-    handlePostgresErrors,
+	handleServerErrors,
 } = require("./api/errors");
-
-const { postComment, getComments } = require("./api/controllers/comments.controllers");
 
 const app = express();
 
@@ -21,9 +19,9 @@ app.get("/api", getApi);
 
 app.get("/api/topics", getTopics);
 
-app.get("/api/articles", getArticles)
-app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/articles/:article_id/comments", getComments);
+app.get("/api/articles/:article_id/comments", getCommentsById);
+app.get("/api/articles", getArticles);
+app.get("/api/articles/:article_id", getArticleById);;
 
 app.use(express.json())
 
@@ -31,8 +29,9 @@ app.post("/api/articles/:article_id/comments", postComment);
 
 app.all("*", handleBadPath);
 
-app.use(handlePostgresErrors)
+app.use(handlePostgresErrors);
 app.use(handle404);
+
 app.use(handleServerErrors);
 
 module.exports = app;
