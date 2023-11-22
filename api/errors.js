@@ -13,7 +13,7 @@ exports.handle404 = (err, req, res, next) => {
 };
 
 exports.handlePostgresErrors = (err, req, res, next) => {
-	if (err.code === "22P02" || err.code === "23502")
-		res.status(400).send({ msg: "Bad Request" });
-	else next(err);
+if (err.code === "22P02" || err.code === "23502" || err.code === "42703")
+	res.status(400).send({ msg: "Bad Request" });
+else next(err);
 };

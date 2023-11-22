@@ -5,7 +5,7 @@ const {
 } = require("../models/article.models");
 
 exports.getArticleById = (req, res, next) => {
-	const id = req.params.article_id;
+	id = req.params.article_id;
 
 	selectArticleById(id)
 		.then((rows) => {
