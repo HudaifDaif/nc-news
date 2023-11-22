@@ -74,11 +74,10 @@ describe("/api/articles", () => {
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
-
-				})
-		})
-	})
-})
+				});
+		});
+	});
+});
 
 describe("/api", () => {
 	describe("GET /api", () => {
@@ -109,10 +108,10 @@ describe("/api/articles", () => {
 							created_at: expect.any(String),
 							votes: expect.any(Number),
 							article_img_url: expect.any(String),
-						})
-					})
-				})
-		})
+						});
+					});
+				});
+		});
 		it("200: should respond with each object containing a comment_count property which represents the number of comments with the corresponding article_id of each article", () => {
 			return request(app)
 				.get("/api/articles")
@@ -143,25 +142,22 @@ describe("/api/articles", () => {
 					const dateCorrected = body.articles.map((article) => {
 						article.created_at = Date.parse(article.created_at);
 						return article;
-
 					});
 					expect(dateCorrected).toBeSortedBy("created_at", {
 						descending: true,
-					})
-				})
-
-
-		})
+					});
+				});
+		});
 		it("200: should return the articles with no body property", () => {
 			return request(app)
 				.get("/api/articles")
 				.expect(200)
 				.then(({ body }) => {
-					body.articles.forEach(article => {
+					body.articles.forEach((article) => {
 						expect(article).not.toHaveProperty("body");
-					})
-				})
-		})
+					});
+				});
+		});
 
 		describe("GET /api/articles/:article_id/comments", () => {
 			it("200: should respond with an object containing an array of comment objects on the key of comments", () => {
@@ -177,7 +173,6 @@ describe("/api/articles", () => {
 								author: expect.any(String),
 								body: expect.any(String),
 								article_id: 1,
-
 							});
 						});
 					});
@@ -190,10 +185,10 @@ describe("/api/articles", () => {
 						const dateCorrected = body.comments.map((comment) => {
 							comment.created_at = Date.parse(comment.created_at);
 							return comment;
-
 						});
-
-				
+						expect(dateCorrected).toBeSortedBy("created_at", {
+							descending: true,
+						});
 					});
 			});
 
@@ -219,11 +214,8 @@ describe("/api/articles", () => {
 					.expect(400)
 					.then(({ body }) => {
 						expect(body.msg).toBe("Bad Request");
-
-		
-
 					});
 			});
 		});
 	});
-})
+});

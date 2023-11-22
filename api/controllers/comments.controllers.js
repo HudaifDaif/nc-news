@@ -1,14 +1,10 @@
 const { checkArticle } = require("../models/article.models");
-const { selectComments } = require("../models/comments.models");
+const { selectCommentsById } = require("../models/comments.models");
 
-exports.getComments = (req, res, next) => {
+exports.getCommentsById = (req, res, next) => {
 	article_id = req.params.article_id;
 
-	const promises = [selectComments(article_id)];
-
-	if (article_id) {
-		promises.push(checkArticle(article_id));
-	}
+	const promises = [selectCommentsById(article_id), checkArticle(article_id)];
 
 	Promise.all(promises)
 		.then((resolved) => {
@@ -16,4 +12,5 @@ exports.getComments = (req, res, next) => {
 			res.status(200).send({ comments });
 		})
 		.catch(next);
+
 };
