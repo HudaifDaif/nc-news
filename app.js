@@ -1,17 +1,20 @@
 const express = require("express");
-const { getApi } = require("./api/controllers/api.controllers");
-const { getTopics } = require("./api/controllers/topics.controllers");
-const { getComments, getCommentsById } = require("./api/controllers/comments.controllers");
+const { getCommentsById } = require("./api/controllers/comments.controllers");
 const {
-	getArticles,
-	getArticleById,
-} = require("./api/controllers/article.controllers");
+	getTopics,
+} = require("./api/controllers/topics.controllers");
 const {
 	handleBadPath,
 	handlePostgresErrors,
 	handle404,
 	handleServerErrors,
 } = require("./api/errors");
+const {
+	patchArticleById,
+	getArticles,
+	getArticleById,
+} = require("./api/controllers/article.controllers");
+const { getApi } = require("./api/controllers/api.controllers");
 
 const app = express();
 
@@ -22,6 +25,9 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id/comments", getCommentsById);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
+
+app.use(express.json());
+app.patch("/api/articles/:article_id", patchArticleById);
 
 app.all("*", handleBadPath);
 

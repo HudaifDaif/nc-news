@@ -8,11 +8,12 @@ exports.handleServerErrors = (err, req, res, next) => {
 };
 
 exports.handle404 = (err, req, res, next) => {
-	err.status === 404 ? res.status(404).send({ msg: "Not Found" }) : next(err);
+	if (err.status === 404) res.status(404).send({ msg: "Not Found" });
+	else next(err);
 };
 
 exports.handlePostgresErrors = (err, req, res, next) => {
-	if (err.code === "22P02" || err.code === "42703")
-		res.status(400).send({ msg: "Bad Request" });
-	else next(err);
+if (err.code === "22P02" || err.code === "23502" || err.code === "42703")
+	res.status(400).send({ msg: "Bad Request" });
+else next(err);
 };
