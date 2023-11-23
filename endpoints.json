@@ -6,7 +6,6 @@
 	"GET /api/topics": {
 		"description": "serves an array of all topics",
 		"requestBodyFormat": null,
-
 		"queries": [],
 		"exampleResponse": {
 			"topics": [{ "slug": "football", "description": "Footie!" }]
@@ -112,6 +111,20 @@
 				"votes": 75,
 				"article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
 			}
+		}
+	},
+	"GET /api/users": {
+		"description": "serves an array of all users",
+		"requestBodyFormat": null,
+		"queries": [],
+		"exampleResponse": {
+			"users": [
+				{
+					"username": "string",
+					"name": "string",
+					"avatar_url": "string"
+				}
+			]
 		}
 	},
 	"DELETE /api/comments/:comment_id": {
