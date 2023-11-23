@@ -76,15 +76,17 @@ describe("/api/articles/:article_id", () => {
 					expect(body.msg).toBe("Bad Request");
 				});
 		});
-		it.only("200: should respond with a property of comment_count", () => {
-			return request(app)
-				.get("/api/articles/12")
-				.expect(200)
-				.then(({ body }) => {
-					expect(body.article).toMatchObject({
-						comment_count: expect.any(Number),
+		describe("Addition of comment_count property", () => {
+			it("200: should respond with a property of comment_count", () => {
+				return request(app)
+					.get("/api/articles/12")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body.article).toMatchObject({
+							comment_count: expect.any(Number),
+						});
 					});
-				});
+			});
 		});
 	});
 });
