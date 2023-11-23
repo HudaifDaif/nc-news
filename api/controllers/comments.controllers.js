@@ -1,9 +1,11 @@
 const { checkArticle } = require("../models/article.models");
-const { checkUser } = require("../models/authors.models");
 const {
 	selectCommentsById,
 	insertComments,
+	deleteCommentRowById,
+	checkComment,
 } = require("../models/comments.models");
+const { checkUser } = require("../models/authors.models");
 
 exports.getCommentsById = (req, res, next) => {
 	article_id = req.params.article_id;
@@ -16,6 +18,19 @@ exports.getCommentsById = (req, res, next) => {
 			res.status(200).send({ comments });
 		})
 		.catch(next);
+};
+
+exports.deleteCommentById = (req, res, next) => {
+	comment_id = req.params.comment_id;
+
+	const promises = [
+		deleteCommentRowById(comment_id),
+		checkComment(comment_id),
+	];
+
+	Promise.all(promises).then(() => {
+		res.status(204).send();
+	}).catch(next);
 };
 
 exports.postComment = (req, res, next) => {
