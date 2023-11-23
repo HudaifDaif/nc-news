@@ -18,10 +18,16 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-	const topic = req.query.topic	
-	selectArticles().then(({ rows }) => {
-		res.status(200).send({ articles: rows });
-	});
+	const topic = req.query.topic;
+
+	selectArticles(topic)
+		.then(({ rows }) => {
+			if (!rows.length) {
+				return Promise.reject({ status: 404 });
+			}
+			res.status(200).send({ articles: rows });
+		})
+		.catch(next);
 };
 
 exports.patchArticleById = (req, res, next) => {

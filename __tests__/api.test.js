@@ -159,8 +159,8 @@ describe("/api/articles", () => {
 				});
 		});
 
-		describe.only("GET /api/articles?topic=", () => {
-			xit("200: should return all of the articles which have a topic that matches the topic value given", () => {
+		describe("GET /api/articles?topic=", () => {
+			it("200: should respond with an array of all of the articles which have a topic that matches the topic value given", () => {
 				return request(app)
 					.get("/api/articles?topic=mitch")
 					.expect(200)
@@ -177,6 +177,14 @@ describe("/api/articles", () => {
 								comment_count: expect.any(String),
 							});
 						});
+					});
+			});
+			it("404: should respond with a message of 'Not Found' if none of the articles' topics match the topic value given", () => {
+				return request(app)
+					.get("/api/articles?topic=notATopic")
+					.expect(404)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Not Found");
 					});
 			});
 		});
