@@ -159,6 +159,28 @@ describe("/api/articles", () => {
 				});
 		});
 
+		describe.only("GET /api/articles?topic=", () => {
+			xit("200: should return all of the articles which have a topic that matches the topic value given", () => {
+				return request(app)
+					.get("/api/articles?topic=mitch")
+					.expect(200)
+					.then(({ body }) => {
+						body.articles.forEach((article) => {
+							expect(article).toMatchObject({
+								title: expect.any(String),
+								author: expect.any(String),
+								article_id: expect.any(Number),
+								topic: "mitch",
+								created_at: expect.any(String),
+								votes: expect.any(Number),
+								article_img_url: expect.any(String),
+								comment_count: expect.any(String),
+							});
+						});
+					});
+			});
+		});
+
 		describe("GET /api/articles/:article_id/comments", () => {
 			it("200: should respond with an object containing an array of comment objects on the key of comments", () => {
 				return request(app)
