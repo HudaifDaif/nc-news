@@ -1,19 +1,20 @@
-const {
-	selectArticleById,
-	selectArticles,
-	updateArticle,
-} = require("../models/article.models");
+const { selectArticles, updateArticle } = require("../models/article.models");
 const { checkTopic } = require("../models/topics.models");
 
 exports.getArticleById = (req, res, next) => {
-	id = req.params.article_id;
+	const id = req.params.article_id;
 
-	selectArticleById(id)
+	selectArticles(id)
 		.then((rows) => {
 			if (!rows.length) {
 				return Promise.reject({ status: 404 });
 			}
-			res.status(200).send({ article: rows[0] });
+			const article = rows[0];
+
+			if (article.comment_count)
+				article.comment_count = Number(article.comment_count);
+
+			res.status(200).send({ article });
 		})
 		.catch(next);
 };
@@ -21,7 +22,7 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
 	const topic = req.query.topic;
 
-	const promises = [selectArticles(topic)];
+	const promises = [selectArticles(null, topic)];
 
 	topic && promises.push(checkTopic(topic));
 

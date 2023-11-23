@@ -15,25 +15,21 @@ exports.checkArticle = (article_id) => {
 		});
 };
 
-exports.selectArticleById = (id) => {
-	return db
-		.query(
-			`
-        SELECT * FROM articles
-        WHERE article_id = $1
-        ;`,
-			[id]
-		)
-		.then(({ rows }) => rows);
-};
+exports.selectArticles = (id, topic) => {
+	const body = id ? `articles.body,` : ``;
 
-exports.selectArticles = (topic) => {
-	const whereTopic = topic ? `WHERE topic = '${topic}'` : ``;
+	const whereParams = [];
+	id ? whereParams.push(`articles.article_id = ${id}`) : ``;
+	topic ? whereParams.push(`topic = '${topic}'`) : ``;
+
+	const whereClause = whereParams.length
+		? `WHERE ${whereParams.join(" AND ")}`
+		: ``;
 
 	const formattedQuery = format(
 		`
         SELECT title, articles.author, articles.article_id, topic,
-        articles.created_at, articles.votes, article_img_url,
+        articles.created_at, articles.votes, article_img_url, %s
         COUNT(comments.comment_id) AS comment_count
         FROM articles
         LEFT OUTER JOIN comments
@@ -42,7 +38,8 @@ exports.selectArticles = (topic) => {
         GROUP BY title, articles.author, articles.article_id
         ORDER BY articles.created_at DESC
         ;`,
-		whereTopic
+		body,
+		whereClause
 	);
 
 	return db.query(formattedQuery).then(({ rows }) => rows);
