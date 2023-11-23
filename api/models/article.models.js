@@ -27,9 +27,16 @@ exports.selectArticleById = (id) => {
 		.then(({ rows }) => rows);
 };
 
-exports.selectArticles = (id) => {
-	const whereId = id ? `WHERE articles.article_id = ${id}` : ``;
+exports.selectArticles = (id, topic) => {
 	const body = id ? `articles.body,` : ``;
+
+	const whereParams = [];
+	id ? whereParams.push(`articles.article_id = ${id}`) : ``;
+	topic ? whereParams.push(`topic = '${topic}'`) : ``;
+
+	const whereClause = whereParams.length
+		? `WHERE ${whereParams.join(" AND ")}`
+		: ``;
 
 	const formattedQuery = format(
 		`
@@ -44,7 +51,7 @@ exports.selectArticles = (id) => {
         ORDER BY articles.created_at DESC
         ;`,
 		body,
-		whereId
+		whereClause
 	);
 
 	return db.query(formattedQuery).then(({ rows }) => rows);
