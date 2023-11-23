@@ -21,9 +21,7 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
 	const topic = req.query.topic;
 	const sort = req.query.sort_by;
-	const order = /asc|desc/i.test(req.query.order)
-		? req.query.order.toUpperCase()
-		: null;
+	const order = req.query.order;
 
 	const promises = [selectArticles(topic, sort, order)];
 

@@ -30,8 +30,13 @@ exports.selectArticleById = (id) => {
 exports.selectArticles = (topic, sort, order) => {
 	const whereTopic = topic ? `WHERE topic = '${topic}'` : ``;
 	const sortBy = sort ? `articles.${sort}` : `articles.created_at`;
-	const orderBy = order === `ASC` ? `ASC` : `DESC`
-	
+
+	if (/asc|desc/i.test(order)) {
+		order = order.toUpperCase();
+	} else if (order) return Promise.reject({ status: 400 });
+
+	const orderBy = order === `ASC` ? `ASC` : `DESC`;
+
 	const formattedQuery = format(
 		`
         SELECT title, articles.author, articles.article_id, topic,

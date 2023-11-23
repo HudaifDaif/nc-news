@@ -44,6 +44,58 @@
 					}
 				]
 			}
+		},
+		"GET /api/articles?sort_by=": {
+			"description": "serves an array of all articles sorted by the property query given",
+			"requestBodyFormat": null,
+			"exampleResponse": {
+				"articles": [
+					{
+						"title": "string",
+						"topic": "string",
+						"author": "string",
+						"body": "string",
+						"created_at": "date",
+						"votes": "number++",
+						"comment_count": "number"
+					},
+					{
+						"title": "string",
+						"topic": "string",
+						"author": "string",
+						"body": "string",
+						"created_at": "date",
+						"votes": "number--",
+						"comment_count": "number"
+					}
+				]
+			}
+		},
+		"GET /api/articles?order=": {
+			"description": "serves an array of all articles sorted my the manner given (asc || desc), defaulting the property ordered by to created_at",
+			"requestBodyFormat": null,
+			"exampleResponse": {
+				"articles": [
+					{
+						"title": "string",
+						"topic": "string",
+						"author": "string",
+						"body": "string",
+						"created_at": "date",
+						"?sort_by=votes": "number++",
+						"comment_count": "number"
+					},
+					{
+						"title": "string",
+						"topic": "string",
+						"author": "string",
+						"body": "string",
+						"created_at": "date",
+						"?sort_by=votes": "number--",
+						"comment_count": "number"
+					}
+				]
+			}
 		}
 	},
 	"GET /api/articles/:article_id/comments": {

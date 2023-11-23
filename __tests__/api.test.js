@@ -193,7 +193,80 @@ describe("/api/articles", () => {
 						expect(dateCorrected).toBeSortedBy("created_at", {
 							descending: false,
 						});
+					})
+					.then(() => {
+						return request(app)
+							.get("/api/articles?order=desc")
+							.expect(200)
+							.then(({ body }) => {
+								const dateCorrected = body.articles.map(
+									(article) => {
+										article.created_at = Date.parse(
+											article.created_at
+										);
+										return article;
+									}
+								);
+								expect(dateCorrected).toBeSortedBy(
+									"created_at",
+									{
+										descending: true,
+									}
+								);
+							});
 					});
+			});
+			it("400: should respond with a message of 'Bad Request' when given an invalid order value", () => {
+				return request(app)
+					.get("/api/articles?order=str")
+					.expect(400)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Bad Request");
+					});
+			});
+			describe("GET /api/articles?sort_by=&order=", () => {
+				it("200: should work when giving both queries in combination", () => {
+					return request(app)
+						.get("/api/articles?sort_by=title&order=asc")
+						.expect(200)
+						.then(({ body }) => {
+							const dateCorrected = body.articles.map(
+								(article) => {
+									article.created_at = Date.parse(
+										article.created_at
+									);
+									return article;
+								}
+							);
+							expect(dateCorrected).toBeSortedBy("title", {
+								descending: false,
+							});
+						});
+				});
+				it("400: should respond with a message of 'Bad Request' when either query is invalid", () => {
+					return request(app)
+						.get("/api/articles?sort_by=str&order=asc")
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						})
+						.then(() => {
+							return request(app)
+								.get("/api/articles?sort_by=title&order=str")
+								.expect(400)
+								.then(({ body }) => {
+									expect(body.msg).toBe("Bad Request");
+								});
+						})
+						.then(() => {
+							return request(app)
+								.get("/api/articles?sort_by=str&order=str")
+								.expect(400)
+								.then(({ body }) => {
+									expect(body.msg).toBe("Bad Request");
+								});
+						});
+				});
 			});
 		});
 	});
