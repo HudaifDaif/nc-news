@@ -13,6 +13,21 @@ exports.selectCommentsById = (article_id) => {
 		.then(({ rows }) => rows);
 };
 
+exports.insertComments = (commentValues) => {
+	return db
+		.query(
+			`
+    INSERT INTO comments
+    (article_id, author, body)
+    VALUES
+    ($1, $2, $3)
+    RETURNING *
+    ;`,
+			commentValues
+		)
+		.then(({ rows }) => rows);
+};
+
 exports.deleteCommentRowById = (id) => {
 	return db.query(
 		`

@@ -1,8 +1,7 @@
 const express = require("express");
-const { getCommentsById, deleteCommentById } = require("./api/controllers/comments.controllers");
-const {
-	getTopics,
-} = require("./api/controllers/topics.controllers");
+const { getCommentsById, deleteCommentById,postComment } = require("./api/controllers/comments.controllers");
+const { getApi } = require("./api/controllers/api.controllers");
+const { getTopics } = require("./api/controllers/topics.controllers");
 const {
 	handleBadPath,
 	handlePostgresErrors,
@@ -14,7 +13,6 @@ const {
 	getArticles,
 	getArticleById,
 } = require("./api/controllers/article.controllers");
-const { getApi } = require("./api/controllers/api.controllers");
 
 const app = express();
 
@@ -27,6 +25,10 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 
 app.delete("/api/comments/:comment_id",deleteCommentById);
+
+app.use(express.json());
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 app.use(express.json());
 app.patch("/api/articles/:article_id", patchArticleById);
