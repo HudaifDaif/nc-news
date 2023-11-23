@@ -3,6 +3,7 @@ const {
 	selectArticles,
 	updateArticle,
 } = require("../models/article.models");
+const { checkTopic } = require("../models/topics.models");
 
 exports.getArticleById = (req, res, next) => {
 	id = req.params.article_id;
@@ -20,11 +21,13 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
 	const topic = req.query.topic;
 
-	selectArticles(topic)
-		.then(({ rows }) => {
-			if (!rows.length) {
-				return Promise.reject({ status: 404 });
-			}
+	const promises = [selectArticles(topic)];
+
+	topic && promises.push(checkTopic(topic));
+
+	Promise.all(promises)
+		.then((resolved) => {
+			const rows = resolved[0];
 			res.status(200).send({ articles: rows });
 		})
 		.catch(next);

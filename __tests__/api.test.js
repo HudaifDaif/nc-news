@@ -187,6 +187,14 @@ describe("/api/articles", () => {
 						expect(body.msg).toBe("Not Found");
 					});
 			});
+			it("200: should respond with an empty array if the topic exists but no articles have been created for it yet", () => {
+				return request(app)
+					.get("/api/articles?topic=paper")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body.articles).toEqual([]);
+					});
+			});
 		});
 
 		describe("GET /api/articles/:article_id/comments", () => {
