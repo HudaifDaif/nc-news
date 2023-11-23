@@ -15,18 +15,6 @@ exports.checkArticle = (article_id) => {
 		});
 };
 
-exports.selectArticleById = (id) => {
-	return db
-		.query(
-			`
-        SELECT * FROM articles
-        WHERE article_id = $1
-        ;`,
-			[id]
-		)
-		.then(({ rows }) => rows);
-};
-
 exports.selectArticles = (id, topic) => {
 	const body = id ? `articles.body,` : ``;
 

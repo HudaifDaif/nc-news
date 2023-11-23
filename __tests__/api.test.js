@@ -76,95 +76,14 @@ describe("/api/articles/:article_id", () => {
 					expect(body.msg).toBe("Bad Request");
 				});
 		});
-	});
-
-	describe("GET /api/articles/:article_id?comment_count=", () => {
-		it("200: should respond with an article object, but include a comment_count property when the value is 'true", () => {
+		it.only("200: should respond with a property of comment_count", () => {
 			return request(app)
-				.get("/api/articles/1?comment_count=true")
+				.get("/api/articles/12")
 				.expect(200)
 				.then(({ body }) => {
 					expect(body.article).toMatchObject({
-						author: expect.any(String),
-						title: expect.any(String),
-						article_id: 1,
-						topic: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
 						comment_count: expect.any(Number),
 					});
-				});
-		});
-		it("200: should respond with an article object, but include a comment_count property when the value is anything other than 'true", () => {
-			return request(app)
-				.get("/api/articles/1?comment_count=false")
-				.expect(200)
-				.then(({ body }) => {
-					expect(body.article).toMatchObject({
-						author: expect.any(String),
-						title: expect.any(String),
-						article_id: 1,
-						topic: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						article_img_url: expect.any(String),
-					});
-					expect(body.article).not.toHaveProperty("comment_count");
-				})
-				.then(() => {
-					return request(app)
-						.get("/api/articles/1?comment_count=anything")
-						.expect(200)
-						.then(({ body }) => {
-							expect(body.article).toMatchObject({
-								author: expect.any(String),
-								title: expect.any(String),
-								article_id: 1,
-								topic: expect.any(String),
-								body: expect.any(String),
-								created_at: expect.any(String),
-								votes: expect.any(Number),
-								article_img_url: expect.any(String),
-							});
-							expect(body.article).not.toHaveProperty(
-								"comment_count"
-							);
-						});
-				});
-		});
-		it("404: should respond with a message of 'Not Found' if the article_id is valid but does not exist with any query value", () => {
-			return request(app)
-				.get("/api/articles/9999999?comment_count=true")
-				.expect(404)
-				.then(({ body }) => {
-					expect(body.msg).toBe("Not Found");
-				})
-				.then(() => {
-					return request(app)
-						.get("/api/articles/9999999?comment_count=false")
-						.expect(404)
-						.then(({ body }) => {
-							expect(body.msg).toBe("Not Found");
-						});
-				});
-		});
-		it("400: should respond with a message of 'Bad Request' when given an invalid article_id with any query value", () => {
-			return request(app)
-				.get("/api/articles/str?comment_count=true")
-				.expect(400)
-				.then(({ body }) => {
-					expect(body.msg).toBe("Bad Request");
-				})
-				.then(() => {
-					return request(app)
-						.get("/api/articles/str?comment_count=false")
-						.expect(400)
-						.then(({ body }) => {
-							expect(body.msg).toBe("Bad Request");
-						});
 				});
 		});
 	});

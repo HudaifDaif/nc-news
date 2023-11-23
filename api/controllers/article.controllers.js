@@ -1,17 +1,10 @@
-const {
-	selectArticleById,
-	selectArticles,
-	updateArticle,
-} = require("../models/article.models");
+const { selectArticles, updateArticle } = require("../models/article.models");
 const { checkTopic } = require("../models/topics.models");
 
 exports.getArticleById = (req, res, next) => {
 	const id = req.params.article_id;
-	const hasCommentCount = req.query.comment_count === "true" ? true : false;
 
-	const articleModel = hasCommentCount ? selectArticles : selectArticleById;
-
-	articleModel(id)
+	selectArticles(id)
 		.then((rows) => {
 			if (!rows.length) {
 				return Promise.reject({ status: 404 });
