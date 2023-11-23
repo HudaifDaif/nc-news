@@ -5,20 +5,28 @@ const {
 } = require("../models/article.models");
 
 exports.getArticleById = (req, res, next) => {
-	id = req.params.article_id;
+	const id = req.params.article_id;
+	const hasCommentCount = req.query.comment_count === "true" ? true : false;
 
-	selectArticleById(id)
+	const articleModel = hasCommentCount ? selectArticles : selectArticleById;
+
+	articleModel(id)
 		.then((rows) => {
 			if (!rows.length) {
 				return Promise.reject({ status: 404 });
 			}
-			res.status(200).send({ article: rows[0] });
+			const article = rows[0];
+			
+			if (article.comment_count)
+				article.comment_count = Number(article.comment_count);
+			
+			res.status(200).send({ article });
 		})
 		.catch(next);
 };
 
 exports.getArticles = (req, res, next) => {
-	selectArticles().then(({ rows }) => {
+	selectArticles().then((rows) => {
 		res.status(200).send({ articles: rows });
 	});
 };
