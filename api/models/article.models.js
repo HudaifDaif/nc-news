@@ -27,9 +27,11 @@ exports.selectArticleById = (id) => {
 		.then(({ rows }) => rows);
 };
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort, order) => {
 	const whereTopic = topic ? `WHERE topic = '${topic}'` : ``;
-
+	const sortBy = sort ? `articles.${sort}` : `articles.created_at`;
+	const orderBy = order === `ASC` ? `ASC` : `DESC`
+	
 	const formattedQuery = format(
 		`
         SELECT title, articles.author, articles.article_id, topic,
@@ -40,9 +42,11 @@ exports.selectArticles = (topic) => {
         ON articles.article_id = comments.article_id
 		%s
         GROUP BY title, articles.author, articles.article_id
-        ORDER BY articles.created_at DESC
+        ORDER BY %s %s
         ;`,
-		whereTopic
+		whereTopic,
+		sortBy,
+		orderBy
 	);
 
 	return db.query(formattedQuery).then(({ rows }) => rows);

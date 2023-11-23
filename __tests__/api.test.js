@@ -159,6 +159,44 @@ describe("/api/articles", () => {
 				});
 		});
 	});
+	describe("Addition of sort_by and order queries", () => {
+		describe("GET /api/articles?sort_by=", () => {
+			it("200: should sort the response array by the column name given, defaulting to descending order ", () => {
+				return request(app)
+					.get("/api/articles?sort_by=title")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body.articles).toBeSortedBy("title", {
+							descending: true,
+						});
+					});
+			});
+			it("400: should respond with a message of 'Bad Request' when given an invalid column name", () => {
+				return request(app)
+					.get("/api/articles?sort_by=str")
+					.expect(400)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Bad Request");
+					});
+			});
+		});
+		describe("GET /api/articles?order=", () => {
+			it("200: should set the order to ascending (asc) or descending (desc)", () => {
+				return request(app)
+					.get("/api/articles?order=asc")
+					.expect(200)
+					.then(({ body }) => {
+						const dateCorrected = body.articles.map((article) => {
+							article.created_at = Date.parse(article.created_at);
+							return article;
+						});
+						expect(dateCorrected).toBeSortedBy("created_at", {
+							descending: false,
+						});
+					});
+			});
+		});
+	});
 });
 
 describe("/api/articles/:article_id/comments", () => {
