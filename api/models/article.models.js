@@ -1,4 +1,5 @@
 const db = require("../../db/connection");
+const format = require("pg-format");
 
 exports.checkArticle = (article_id) => {
 	return db
@@ -26,17 +27,25 @@ exports.selectArticleById = (id) => {
 		.then(({ rows }) => rows);
 };
 
-exports.selectArticles = () => {
-	return db.query(`
+exports.selectArticles = (topic) => {
+	const whereTopic = topic ? `WHERE topic = '${topic}'` : ``;
+
+	const formattedQuery = format(
+		`
         SELECT title, articles.author, articles.article_id, topic,
         articles.created_at, articles.votes, article_img_url,
         COUNT(comments.comment_id) AS comment_count
         FROM articles
         LEFT OUTER JOIN comments
         ON articles.article_id = comments.article_id
+		%s
         GROUP BY title, articles.author, articles.article_id
         ORDER BY articles.created_at DESC
-        ;`);
+        ;`,
+		whereTopic
+	);
+
+	return db.query(formattedQuery).then(({ rows }) => rows);
 };
 
 exports.updateArticle = (votes, id) => {

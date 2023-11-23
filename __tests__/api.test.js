@@ -286,6 +286,44 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 
+		describe("GET /api/articles?topic=", () => {
+			it("200: should respond with an array of all of the articles which have a topic that matches the topic value given", () => {
+				return request(app)
+					.get("/api/articles?topic=mitch")
+					.expect(200)
+					.then(({ body }) => {
+						body.articles.forEach((article) => {
+							expect(article).toMatchObject({
+								title: expect.any(String),
+								author: expect.any(String),
+								article_id: expect.any(Number),
+								topic: "mitch",
+								created_at: expect.any(String),
+								votes: expect.any(Number),
+								article_img_url: expect.any(String),
+								comment_count: expect.any(String),
+							});
+						});
+					});
+			});
+			it("404: should respond with a message of 'Not Found' if none of the articles' topics match the topic value given", () => {
+				return request(app)
+					.get("/api/articles?topic=notATopic")
+					.expect(404)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Not Found");
+					});
+			});
+			it("200: should respond with an empty array if the topic exists but no articles have been created for it yet", () => {
+				return request(app)
+					.get("/api/articles?topic=paper")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body.articles).toEqual([]);
+					});
+			});
+		});
+
 		describe("GET /api/articles/:article_id/comments", () => {
 			it("200: should respond with an object containing an array of comment objects on the key of comments", () => {
 				return request(app)

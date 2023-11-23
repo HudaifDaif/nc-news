@@ -27,6 +27,23 @@
 					"comment_count": 6
 				}
 			]
+		},
+		"GET /api/articles?topic=": {
+			"description": "serves an array of all articles that match the topic query given",
+			"requestBodyFormat": null,
+			"exampleResponse": {
+				"articles": [
+					{
+						"title": "string",
+						"topic": "->query<-",
+						"author": "string",
+						"body": "string",
+						"created_at": "date",
+						"votes": "number",
+						"comment_count": "number"
+					}
+				]
+			}
 		}
 	},
 	"GET /api/articles/:article_id/comments": {
