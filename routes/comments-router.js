@@ -10,6 +10,6 @@ commentsRouter
 	.route("/:comment_id")
 	.post(postComment)
 	.delete(deleteCommentById)
-	.patch(patchCommentById);
+	.patch(patchCommentById)
 
 module.exports = commentsRouter;
