@@ -14,9 +14,9 @@ exports.checkTopic = (topic) => {
 	return db
 		.query(
 			`
-    SELECT * FROM topics
-    WHERE slug = $1
-    ;`,
+			SELECT * FROM topics
+			WHERE slug = $1
+			;`,
 			[topic]
 		)
 		.then(({ rows }) => {
