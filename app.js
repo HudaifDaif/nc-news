@@ -20,7 +20,7 @@ const {
 const { getUsers } = require("./api/controllers/users.controllers");
 const apiRouter = require("./routes/api-router");
 const articlesRouter = require("./routes/articles-router");
-const usersRouter = require("./routes/user-router");
+const usersRouter = require("./routes/users-router");
 const commentsRouter = require("./routes/comments-router");
 const topics = require("./db/data/test-data/topics");
 const topicsRouter = require("./routes/topics-router");
