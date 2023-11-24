@@ -1,4 +1,5 @@
 const db = require("../../db/connection");
+const format = require("pg-format");
 
 exports.selectCommentsById = (article_id) => {
 	return db
@@ -50,4 +51,23 @@ exports.checkComment = (id) => {
 		.then(({ rows }) => {
 			if (!rows.length) return Promise.reject({ status: 404 });
 		});
+};
+
+exports.updateCommentById = (votes, id) => {
+	if (!Number(votes)) return Promise.reject({ status: 400 });
+
+	const formattedQuery = format(
+		`
+		UPDATE comments
+		SET votes = votes + %s
+		WHERE comment_id = %s
+		RETURNING *
+		;`,
+		votes,
+		id
+	);
+
+	return db.query(formattedQuery).then(({ rows }) => {
+		return rows.length ? rows[0] : Promise.reject({ status: 404 });
+	});
 };

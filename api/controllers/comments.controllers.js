@@ -4,6 +4,7 @@ const {
 	insertComments,
 	deleteCommentRowById,
 	checkComment,
+	updateCommentById,
 } = require("../models/comments.models");
 const { checkUser } = require("../models/authors.models");
 
@@ -28,9 +29,11 @@ exports.deleteCommentById = (req, res, next) => {
 		checkComment(comment_id),
 	];
 
-	Promise.all(promises).then(() => {
-		res.status(204).send();
-	}).catch(next);
+	Promise.all(promises)
+		.then(() => {
+			res.status(204).send();
+		})
+		.catch(next);
 };
 
 exports.postComment = (req, res, next) => {
@@ -51,4 +54,13 @@ exports.postComment = (req, res, next) => {
 			res.status(200).send({ comment });
 		})
 		.catch(next);
+};
+
+exports.patchCommentById = (req, res, next) => {
+	const votes = req.body.inc_votes;
+	const id = req.params.comment_id;
+
+	updateCommentById(votes, id).then((comment) => {		
+		res.status(200).send({ comment })
+	}).catch(next);
 };

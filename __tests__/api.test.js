@@ -738,4 +738,212 @@ describe("\n/api/comments", () => {
 				});
 		});
 	});
+
+	describe("POST /api/articles/:article_id/comments", () => {
+		it("200: should return a comment object for the posted comment", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					username: "lurker",
+					body: "Lorem ipsum",
+				})
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comment).toMatchObject({
+						comment_id: expect.any(Number),
+						body: "Lorem ipsum",
+						votes: 0,
+						author: "lurker",
+						article_id: 3,
+						created_at: expect.any(String),
+					});
+				});
+		});
+		it("200: should add the posted comment to the comments table", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					username: "lurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(200)
+				.then(() => {
+					return request(app)
+						.get("/api/articles/3/comments")
+						.expect(200)
+						.then(({ body }) => {
+							const [testComment] = body.comments.filter(
+								(comment) => {
+									return comment.author === "lurker" &&
+										comment.body === "-->This comment!!!<--"
+										? comment
+										: null;
+								}
+							);
+
+							expect(testComment).toMatchObject({
+								comment_id: expect.any(Number),
+								body: "-->This comment!!!<--",
+								votes: 0,
+								author: "lurker",
+								article_id: 3,
+								created_at: expect.any(String),
+							});
+						});
+				});
+		});
+		it("404: should respond with a message of 'Not Found' if the article_id is valid but does not exist", () => {
+			return request(app)
+				.post("/api/articles/999999/comments")
+				.send({
+					username: "lurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' if the article_id is not valid", () => {
+			return request(app)
+				.post("/api/articles/str/comments")
+				.send({
+					username: "lurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				});
+		});
+		it("404: should respond with a message of 'Not Found' if the username is not associated to a user", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					username: "imdefinitelylurker",
+					body: "-->This comment!!!<--",
+				})
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should return a message of Bad Request if any fields are missing", () => {
+			return request(app)
+				.post("/api/articles/3/comments")
+				.send({
+					body: "Lorem ipsum",
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles/3/comments")
+						.send({
+							username: "imdefinitelylurker",
+						})
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles/3/comments")
+						.send({
+							name: "imdefinitelylurker",
+							comment: "Lorem ipsum",
+						})
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				});
+		});
+	});
+
+	describe("PATCH /api/comments/:comment_id", () => {
+		it("200: should increment the votes of a comment by the value given on the key of inc_votes", () => {
+			let currVotes;
+			return db
+				.query(
+					`
+			SELECT * FROM comments
+			WHERE comment_id = 5
+			;`
+				)
+				.then(({ rows }) => {
+					currVotes = rows[0].votes;
+				})
+				.then(() => {
+					return request(app)
+						.patch("/api/comments/5")
+						.send({ inc_votes: 12 })
+						.expect(200)
+						.then(({ body }) => {
+							expect(body.comment.votes).toBe(currVotes + 12);
+						});
+				});
+		});
+		it("200: should decrement the votes of a comment by the value given on the key of inc_votes when the value is negative", () => {
+			let currVotes;
+			return db
+				.query(
+					`
+			SELECT * FROM comments
+			WHERE comment_id = 1
+			;`
+				)
+				.then(({ rows }) => {
+					currVotes = rows[0].votes;
+				})
+				.then(() => {
+					return request(app)
+						.patch("/api/comments/1")
+						.send({ inc_votes: -10 })
+						.expect(200)
+						.then(({ body }) => {
+							expect(body.comment.votes).toBe(currVotes - 10);
+						});
+				});
+		});
+		it("400: should return a message of 'Bad Request' if given the incorrect key", () => {
+			return request(app)
+				.patch("/api/comments/1")
+				.send({ votes: -10 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				});
+		});
+		it("400: should return a message of 'Bad Request' if given the incorrect data type on the key of inc_votes", () => {
+			return request(app)
+				.patch("/api/comments/1")
+				.send({ inc_votes: "ten" })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				});
+		});
+		it("404: should return a message of 'Not Found' if the comment_id is valid but doesn't exist", () => {
+			return request(app)
+				.patch("/api/comments/999999")
+				.send({ inc_votes: 10 })
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should return a message of 'Bad Request' if the comment_id is invalid", () => {
+			return request(app)
+				.patch("/api/comments/str")
+				.send({ inc_votes: 10 })
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				});
+		});
+	});
 });
