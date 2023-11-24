@@ -658,6 +658,140 @@ describe("\n/api/articles", () => {
 				});
 		});
 	});
+	describe("POST /api/articles", () => {
+		it("200: should add a new article and respond with the article that was added ", () => {
+			return request(app)
+				.post("/api/articles")
+				.send({
+					author: "lurker",
+					title: "testTitle",
+					body: "testBody",
+					topic: "mitch",
+					article_img_url: "testImg.com",
+				})
+				.expect(201)
+				.then(({ body }) => {				
+					expect(body.article).toMatchObject({
+						author: "lurker",
+						title: "testTitle",
+						body: "testBody",
+						topic: "mitch",
+						article_img_url: "testImg.com",
+						article_id: expect.any(Number),
+						votes: 0,
+						created_at: expect.any(String),
+						comment_count: 0,
+					});
+				});
+		});
+		it("200: should default the article_img_url if omitted ", () => {
+			return request(app)
+				.post("/api/articles")
+				.send({
+					author: "lurker",
+					title: "testTitle",
+					body: "testBody",
+					topic: "mitch",
+				})
+				.expect(201)
+				.then(({ body }) => {
+					expect(body.article).toMatchObject({
+						author: "lurker",
+						title: "testTitle",
+						body: "testBody",
+						topic: "mitch",
+						article_img_url:
+							"https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+						article_id: expect.any(Number),
+						votes: 0,
+						created_at: expect.any(String),
+						comment_count: 0,
+					});
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' when any other keys are omitted", () => {
+			return request(app)
+				.post("/api/articles")
+				.send({
+					title: "testTitle",
+					body: "testBody",
+					topic: "mitch",
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles")
+						.send({
+							author: "lurker",
+							body: "testBody",
+							topic: "mitch",
+						})
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' when any other values are of an invalid type", () => {
+			return request(app)
+				.post("/api/articles")
+				.send({
+					author: "lurker",
+					title: 42,
+					body: "testBody",
+					topic: "mitch",
+				})
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Bad Request");
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles")
+						.send({
+							author: "lurker",
+							title: "testTitle",
+							body: 42,
+							topic: "mitch",
+						})
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				});
+		});
+		it("404: should respond with a message of 'Not Found' when either the author or topic do not exist", () => {
+			return request(app)
+				.post("/api/articles")
+				.send({
+					author: "lurker",
+					title: "testTitle",
+					body: "testBody",
+					topic: "match",
+				})
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("Not Found");
+				})
+				.then(() => {
+					return request(app)
+						.post("/api/articles")
+						.send({
+							author: "larker",
+							title: "testTitle",
+							body: "testBody",
+							topic: "mitch",
+						})
+						.expect(404)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Not Found");
+						});
+				});
+		});
+	});
 });
 
 describe("\n/api/users", () => {

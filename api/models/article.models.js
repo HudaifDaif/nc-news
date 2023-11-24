@@ -24,9 +24,9 @@ exports.selectArticles = (id, topic, sort, order) => {
 	} else if (order) return Promise.reject({ status: 400 });
 
 	const orderBy = order === `ASC` ? `ASC` : `DESC`;
-	
+
 	const whereParams = [];
-	
+
 	id ? whereParams.push(`articles.article_id = ${id}`) : ``;
 	topic ? whereParams.push(`topic = '${topic}'`) : ``;
 
@@ -69,4 +69,41 @@ exports.updateArticle = (votes, id) => {
 		.then(({ rows }) => {
 			return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
 		});
+};
+
+exports.insertArticle = (author, title, body, topic, img_url) => {
+	const articleColumn = img_url ? `, article_img_url` : ``;
+	const article_img_url = img_url ? `, '${img_url}'` : ``;
+
+	if (
+		!author ||
+		!title ||
+		!body ||
+		!topic ||
+		typeof title !== "string" ||
+		typeof body !== "string"
+	) {
+		return Promise.reject({ status: 400 });
+	}
+
+	const formattedQuery = format(
+		`
+	INSERT INTO articles 
+	(author, title, body, topic %s)
+	VALUES
+	('%s', '%s', '%s', '%s' %s)
+	RETURNING *
+	;`,
+		articleColumn,
+		author,
+		title,
+		body,
+		topic,
+		article_img_url
+	);
+
+	return db.query(formattedQuery).then(({ rows }) => {
+		rows[0].comment_count = 0;
+		return rows[0];
+	});
 };
