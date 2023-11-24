@@ -18,25 +18,26 @@ const {
 	getArticleById,
 } = require("./api/controllers/article.controllers");
 const { getUsers } = require("./api/controllers/users.controllers");
+const apiRouter = require("./routes/api-router");
+const articlesRouter = require("./routes/articles-router");
+const usersRouter = require("./routes/user-router");
+const commentsRouter = require("./routes/comments-router");
+const topics = require("./db/data/test-data/topics");
+const topicsRouter = require("./routes/topics-router");
 
 const app = express();
 
-app.get("/api", getApi);
-
-app.get("/api/topics", getTopics);
-
-app.get("/api/articles/:article_id/comments", getCommentsById);
-app.get("/api/articles", getArticles);
-app.get("/api/articles/:article_id", getArticleById);
-
-app.get("/api/users", getUsers);
-app.delete("/api/comments/:comment_id", deleteCommentById);
-
 app.use(express.json());
 
-app.post("/api/articles/:article_id/comments", postComment);
+app.use("/api", apiRouter);
 
-app.patch("/api/articles/:article_id", patchArticleById);
+app.use("/api/articles", articlesRouter);
+
+app.use("/api/comments", commentsRouter);
+
+app.use("/api/topics", topicsRouter);
+
+app.use("/api/users", usersRouter);
 
 app.all("*", handleBadPath);
 
