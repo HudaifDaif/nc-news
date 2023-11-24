@@ -670,7 +670,7 @@ describe("\n/api/articles", () => {
 					article_img_url: "testImg.com",
 				})
 				.expect(201)
-				.then(({ body }) => {
+				.then(({ body }) => {				
 					expect(body.article).toMatchObject({
 						author: "lurker",
 						title: "testTitle",
