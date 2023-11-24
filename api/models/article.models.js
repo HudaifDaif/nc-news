@@ -15,10 +15,18 @@ exports.checkArticle = (article_id) => {
 		});
 };
 
-exports.selectArticles = (id, topic) => {
+exports.selectArticles = (id, topic, sort, order) => {
 	const body = id ? `articles.body,` : ``;
+	const sortBy = sort ? `articles.${sort}` : `articles.created_at`;
 
+	if (/asc|desc/i.test(order)) {
+		order = order.toUpperCase();
+	} else if (order) return Promise.reject({ status: 400 });
+
+	const orderBy = order === `ASC` ? `ASC` : `DESC`;
+	
 	const whereParams = [];
+	
 	id ? whereParams.push(`articles.article_id = ${id}`) : ``;
 	topic ? whereParams.push(`topic = '${topic}'`) : ``;
 
@@ -36,10 +44,12 @@ exports.selectArticles = (id, topic) => {
         ON articles.article_id = comments.article_id
 		%s
         GROUP BY title, articles.author, articles.article_id
-        ORDER BY articles.created_at DESC
+        ORDER BY %s %s
         ;`,
 		body,
-		whereClause
+		whereClause,
+		sortBy,
+		orderBy
 	);
 
 	return db.query(formattedQuery).then(({ rows }) => rows);

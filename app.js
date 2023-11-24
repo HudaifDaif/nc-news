@@ -9,7 +9,7 @@ const { getTopics } = require("./api/controllers/topics.controllers");
 const {
 	handleBadPath,
 	handlePostgresErrors,
-	handle404,
+	handleCustomErrors,
 	handleServerErrors,
 } = require("./api/errors");
 const {
@@ -41,7 +41,7 @@ app.patch("/api/articles/:article_id", patchArticleById);
 app.all("*", handleBadPath);
 
 app.use(handlePostgresErrors);
-app.use(handle404);
+app.use(handleCustomErrors);
 
 app.use(handleServerErrors);
 app.use(express.json());

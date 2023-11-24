@@ -21,8 +21,10 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 	const topic = req.query.topic;
+	const sort = req.query.sort_by;
+	const order = req.query.order;
 
-	const promises = [selectArticles(null, topic)];
+	const promises = [selectArticles(null, topic, sort, order)];
 
 	topic && promises.push(checkTopic(topic));
 
