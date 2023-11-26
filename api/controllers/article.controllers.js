@@ -2,6 +2,7 @@ const {
 	selectArticles,
 	updateArticle,
 	insertArticle,
+	getArticleCount,
 } = require("../models/article.models");
 const { checkTopic } = require("../models/topics.models");
 
@@ -24,18 +25,21 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-	const topic = req.query.topic;
-	const sort = req.query.sort_by;
-	const order = req.query.order;
+	const { topic, sort_by, order, limit, p: page } = req.query;
 
-	const promises = [selectArticles(null, topic, sort, order)];
+	const promises = [
+		selectArticles(null, topic, sort_by, order, limit, page),
+		getArticleCount(limit || 10),
+	];
 
 	topic && promises.push(checkTopic(topic));
 
 	Promise.all(promises)
-		.then((resolved) => {
-			const rows = resolved[0];
-			res.status(200).send({ articles: rows });
+		.then(([articles, [total_count, pages]]) => {
+			// const rows = resolved[0];
+			// const total_count = resolved[1];
+
+			res.status(200).send({ articles, total_count, pages });
 		})
 		.catch(next);
 };
