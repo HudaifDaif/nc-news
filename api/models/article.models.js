@@ -15,9 +15,13 @@ exports.checkArticle = (article_id) => {
 		});
 };
 
-exports.selectArticles = (id, topic, sort, order) => {
+exports.selectArticles = (id, topic, sort, order, limit, page) => {
 	const body = id ? `articles.body,` : ``;
 	const sortBy = sort ? `articles.${sort}` : `articles.created_at`;
+	const limitClause = limit ? `LIMIT ${limit}` : `LIMIT 10`;
+	const offsetClause = page
+		? `OFFSET ${(limit || 10) * (page - 1)}`
+		: `OFFSET 0`;
 
 	if (/asc|desc/i.test(order)) {
 		order = order.toUpperCase();
@@ -45,14 +49,21 @@ exports.selectArticles = (id, topic, sort, order) => {
 		%s
         GROUP BY title, articles.author, articles.article_id
         ORDER BY %s %s
+		%s
+		%s
         ;`,
 		body,
 		whereClause,
 		sortBy,
-		orderBy
+		orderBy,
+		limitClause,
+		offsetClause
 	);
 
-	return db.query(formattedQuery).then(({ rows }) => rows);
+	return db.query(formattedQuery).then(({ rows }) => {
+		if (!rows.length && !topic) return Promise.reject({ status: 404 });
+		return rows;
+	});
 };
 
 exports.updateArticle = (votes, id) => {
@@ -106,4 +117,14 @@ exports.insertArticle = (author, title, body, topic, img_url) => {
 		rows[0].comment_count = 0;
 		return rows[0];
 	});
+};
+
+exports.getArticleCount = (limit) => {
+	return db
+		.query(
+			`
+			SELECT count(*) FROM articles
+			;`
+		)
+		.then(({ rows }) => [rows[0].count, Math.ceil(rows[0].count / limit)]);
 };

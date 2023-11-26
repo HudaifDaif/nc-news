@@ -10,6 +10,7 @@ const {
 } = require("../db/data/test-data");
 
 const endpoints = require("../endpoints.json");
+const articles = require("../db/data/test-data/articles");
 
 beforeEach(() => seed(topicData, userData, articleData, commentData));
 
@@ -670,7 +671,7 @@ describe("\n/api/articles", () => {
 					article_img_url: "testImg.com",
 				})
 				.expect(201)
-				.then(({ body }) => {				
+				.then(({ body }) => {
 					expect(body.article).toMatchObject({
 						author: "lurker",
 						title: "testTitle",
@@ -789,6 +790,80 @@ describe("\n/api/articles", () => {
 						.then(({ body }) => {
 							expect(body.msg).toBe("Not Found");
 						});
+				});
+		});
+	});
+
+	describe("Addition of pagination to GET /api/articles", () => {
+		it("200: response should default to a length of 10 articles", () => {
+			return request(app)
+				.get("/api/articles")
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.articles.length).toBe(10);
+				});
+		});
+		describe("limit query", () => {
+			it("200: should respond with the length of articles equal to the number given", () => {
+				return request(app)
+					.get("/api/articles?limit=3")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body.articles.length).toBe(3);
+					});
+			});
+			it("400: should respond with a message of 'Bad Request' when given a value that is not a number", () => {
+				return request(app)
+					.get("/api/articles?limit=str")
+					.expect(400)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Bad Request");
+					});
+			});
+		});
+		describe("page query (p)", () => {
+			it("200: should offset the response articles by the limit set", () => {
+				let refArticles;
+				return request(app)
+					.get("/api/articles?limit=20")
+					.expect(200)
+					.then(({ body }) => {
+						refArticles = body.articles;
+					})
+					.then(() => {
+						return request(app)
+							.get("/api/articles?p=2")
+							.expect(200)
+							.then(({ body }) => {
+								expect(body.articles).toMatchObject(
+									refArticles.slice(10, 20)
+								);
+							});
+					});
+			});
+			it("400: should respond with a message of 'Bad Request' when given a value that is not a number", () => {
+				return request(app)
+					.get("/api/articles?p=str")
+					.expect(400)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Bad Request");
+					});
+			});
+			it("404: should respond with a message of 'Not Found' when given a value that would return no articles", () => {
+				return request(app)
+					.get("/api/articles?p=999999")
+					.expect(404)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Not Found");
+					});
+			});
+		});
+		it("200: should respond with a total_count property that displays the total number of articles", () => {
+			return request(app)
+				.get("/api/articles")
+				.expect(200)
+				.then(({ body }) => {
+					expect(body).toHaveProperty("total_count");
 				});
 		});
 	});
