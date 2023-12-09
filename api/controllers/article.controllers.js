@@ -36,9 +36,6 @@ exports.getArticles = (req, res, next) => {
 
 	Promise.all(promises)
 		.then(([articles, [total_count, pages]]) => {
-			// const rows = resolved[0];
-			// const total_count = resolved[1];
-
 			res.status(200).send({ articles, total_count, pages });
 		})
 		.catch(next);

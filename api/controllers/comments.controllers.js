@@ -5,18 +5,27 @@ const {
 	deleteCommentRowById,
 	checkComment,
 	updateCommentById,
+	getCommentCount,
 } = require("../models/comments.models");
 const { checkUser } = require("../models/authors.models");
 
 exports.getCommentsById = (req, res, next) => {
 	article_id = req.params.article_id;
+	const { limit, p: page } = req.query;
 
-	const promises = [selectCommentsById(article_id), checkArticle(article_id)];
+	const promises = [
+		selectCommentsById(article_id, limit, page),
+		getCommentCount(limit || 10),
+		checkArticle(article_id),
+	];
 
 	Promise.all(promises)
 		.then((resolved) => {
 			const comments = resolved[0];
-			res.status(200).send({ comments });
+			const [total_count, pages] = resolved[1];
+
+			if (page > pages) return Promise.reject({ status: 404 });
+			res.status(200).send({ comments, total_count, pages });
 		})
 		.catch(next);
 };
@@ -60,7 +69,9 @@ exports.patchCommentById = (req, res, next) => {
 	const votes = req.body.inc_votes;
 	const id = req.params.comment_id;
 
-	updateCommentById(votes, id).then((comment) => {		
-		res.status(200).send({ comment })
-	}).catch(next);
+	updateCommentById(votes, id)
+		.then((comment) => {
+			res.status(200).send({ comment });
+		})
+		.catch(next);
 };
