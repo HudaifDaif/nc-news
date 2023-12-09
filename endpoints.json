@@ -309,23 +309,7 @@
 					"comment_count": 11
 				}
 			}
-		},
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		}
 	},
 	"POST /api/articles/:article_id/comments": {
 		"description": "inserts a new comment to the article_id given",
