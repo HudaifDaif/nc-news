@@ -31,7 +31,6 @@
 		},
 		"GET /api/articles?topic=": {
 			"description": "serves an array of all articles that match the topic query given",
-			"queries": [],
 			"requestBodyFormat": null,
 			"exampleResponse": {
 				"articles": [
@@ -49,7 +48,6 @@
 		},
 		"GET /api/articles?sort_by=": {
 			"description": "serves an array of all articles sorted by the property query given",
-			"queries": [],
 			"requestBodyFormat": null,
 			"exampleResponse": {
 				"articles": [
@@ -76,7 +74,6 @@
 		},
 		"GET /api/articles?order=": {
 			"description": "serves an array of all articles sorted my the manner given (asc || desc), defaulting the property ordered by to created_at",
-			"queries": [],
 			"requestBodyFormat": null,
 			"exampleResponse": {
 				"articles": [
@@ -103,7 +100,6 @@
 		},
 		"GET /api/articles?limit=": {
 			"description": "serves an array of articles defining the limit of articles in the response, defaulting to 10 articles",
-			"queries": [],
 			"requestBodyFormat": null,
 			"exampleResponse": {
 				"articles": [
@@ -144,7 +140,6 @@
 		},
 		"GET /api/articles?p=": {
 			"description": "severs an array of a page of articles offset by the limit",
-			"queries": [],
 			"requestBodyFormat": null,
 			"exampleResponse": {
 				"articles": [
@@ -215,6 +210,70 @@
 					"created_at": "2020-06-15T10:25:00.000Z"
 				}
 			]
+		},
+		"GET /api/articles/:article_id/comments?limit=": {
+			"description": "serves an array of comments for a specified article_id defining the limit of comments in the response, defaulting to 10 comments",
+			"requestBodyFormat": null,
+			"exampleResponse": {
+				"comments": [
+					{
+						"comment_id": 2,
+						"body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+						"article_id": 1,
+						"author": "butter_bridge",
+						"votes": 14,
+						"created_at": "2020-10-31T03:03:00.000Z"
+					},
+					{
+						"comment_id": 18,
+						"body": "This morning, I showered for nine minutes.",
+						"article_id": 1,
+						"author": "butter_bridge",
+						"votes": 16,
+						"created_at": "2020-07-21T00:20:00.000Z"
+					},
+					{
+						"comment_id": 13,
+						"body": "Fruit pastilles",
+						"article_id": 1,
+						"author": "icellusedkars",
+						"votes": 0,
+						"created_at": "2020-06-15T10:25:00.000Z"
+					}
+				]
+			}
+		},
+		"GET /api/articles/:article_id/comments?p=": {
+			"description": "serves an array of a page of comments offset by the limit",
+			"requestBodyFormat": null,
+			"exampleResponse": {
+				"comments": [
+					{
+						"comment_id": 2,
+						"body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+						"article_id": 1,
+						"author": "butter_bridge",
+						"votes": 14,
+						"created_at": "2020-10-31T03:03:00.000Z"
+					},
+					{
+						"comment_id": 18,
+						"body": "This morning, I showered for nine minutes.",
+						"article_id": 1,
+						"author": "butter_bridge",
+						"votes": 16,
+						"created_at": "2020-07-21T00:20:00.000Z"
+					},
+					{
+						"comment_id": 13,
+						"body": "Fruit pastilles",
+						"article_id": 1,
+						"author": "icellusedkars",
+						"votes": 0,
+						"created_at": "2020-06-15T10:25:00.000Z"
+					}
+				]
+			}
 		}
 	},
 	"GET /api/articles/:article_id": {
@@ -250,7 +309,23 @@
 					"comment_count": 11
 				}
 			}
-		}
+		},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	},
 	"POST /api/articles/:article_id/comments": {
 		"description": "inserts a new comment to the article_id given",

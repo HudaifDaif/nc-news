@@ -1071,6 +1071,79 @@ describe("\n/api/comments", () => {
 						});
 				});
 		});
+		describe("Addition of pagination to GET /api/articles/:article_id/comments", () => {
+			it("200: response should default to a length of 10 comments", () => {
+				return request(app)
+					.get("/api/articles/1/comments")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body.comments.length).toBe(10);
+					});
+			});
+			describe("limit query", () => {
+				it("200: should respond with the length of comments equal to the number given", () => {
+					return request(app)
+						.get("/api/articles/1/comments?limit=3")
+						.expect(200)
+						.then(({ body }) => {
+							expect(body.comments.length).toBe(3);
+						});
+				});
+				it("400: should respond with a message of 'Bad Request' when given a value that is not a number", () => {
+					return request(app)
+						.get("/api/articles/1/comments?limit=str")
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				});
+			});
+			describe("page query (p)", () => {
+				it("200: should offset the response comments by the limit set", () => {
+					let refComments;
+					return request(app)
+						.get("/api/articles/1/comments?limit=20")
+						.expect(200)
+						.then(({ body }) => {
+							refComments = body.comments;
+						})
+						.then(() => {
+							return request(app)
+								.get("/api/articles/1/comments?p=2")
+								.expect(200)
+								.then(({ body }) => {
+									expect(body.comments).toMatchObject(
+										refComments.slice(10, 20)
+									);
+								});
+						});
+				});
+				it("400: should respond with a message of 'Bad Request' when given a value that is not a number", () => {
+					return request(app)
+						.get("/api/articles/1/comments?p=str")
+						.expect(400)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Bad Request");
+						});
+				});
+				it("404: should respond with a message of 'Not Found' when given a value that would return no comments", () => {
+					return request(app)
+						.get("/api/articles/1/comments?p=999999")
+						.expect(404)
+						.then(({ body }) => {
+							expect(body.msg).toBe("Not Found");
+						});
+				});
+				// 	});
+				// 	it("200: should respond with a total_count property that displays the total number of comments", () => {
+				// 		return request(app)
+				// 			.get("/api/articles/1/comments")
+				// 			.expect(200)
+				// 			.then(({ body }) => {
+				// 				expect(body).toHaveProperty("total_count");
+				// });
+			});
+		});
 	});
 
 	describe("PATCH /api/comments/:comment_id", () => {
