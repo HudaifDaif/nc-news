@@ -15,7 +15,7 @@ exports.getCommentsById = (req, res, next) => {
 
 	const promises = [
 		selectCommentsById(article_id, limit, page),
-		getCommentCount(limit || 10),
+		getCommentCount(limit || 10, article_id),
 		checkArticle(article_id),
 	];
 

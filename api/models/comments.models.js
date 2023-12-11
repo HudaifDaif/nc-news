@@ -81,12 +81,14 @@ exports.updateCommentById = (votes, id) => {
 	});
 };
 
-exports.getCommentCount = (limit) => {
+exports.getCommentCount = (limit, article_id) => {
 	return db
 		.query(
 			`
 			SELECT count(*) FROM comments
-			;`
+			WHERE article_id = $1
+			;`,
+			[article_id]
 		)
 		.then(({ rows }) => [rows[0].count, Math.ceil(rows[0].count / limit)]);
 };
