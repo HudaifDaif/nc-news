@@ -23,7 +23,13 @@ exports.selectCommentsById = (article_id, limit, page) => {
 	return db.query(formattedQuery).then(({ rows }) => rows);
 };
 
-exports.insertComments = (commentValues) => {
+exports.insertComments = (article_id, author, body) => {
+	if (!/\w+/.test(author) || !/\w+/.test(body)) {
+		return Promise.reject({ status: 400 });
+	}
+
+	const commentValues = [article_id, author, body];
+
 	return db
 		.query(
 			`

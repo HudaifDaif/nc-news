@@ -408,6 +408,18 @@ describe("\n/api/articles", () => {
 							});
 					});
 			});
+			it("400: should return a message of Bad Request if any fields are empty strings", () => {
+				return request(app)
+					.post("/api/articles/3/comments")
+					.send({
+						body: "",
+						suername: "",
+					})
+					.expect(400)
+					.then(({ body }) => {
+						expect(body.msg).toBe("Bad Request");
+					});
+			});
 		});
 		describe("GET /api/articles/:article_id/comments", () => {
 			it("200: should respond with an object containing an array of comment objects on the key of comments", () => {

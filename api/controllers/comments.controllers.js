@@ -50,7 +50,7 @@ exports.postComment = (req, res, next) => {
 	author = req.body.username;
 	body = req.body.body;
 
-	const promises = [insertComments([article_id, author, body])];
+	const promises = [insertComments(article_id, author, body)];
 
 	if (article_id && author) {
 		promises.push(checkArticle(article_id));
