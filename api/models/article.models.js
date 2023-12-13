@@ -99,12 +99,12 @@ exports.insertArticle = (author, title, body, topic, img_url) => {
 
 	const formattedQuery = format(
 		`
-	INSERT INTO articles 
-	(author, title, body, topic %s)
-	VALUES
-	('%s', '%s', '%s', '%s' %s)
-	RETURNING *
-	;`,
+		INSERT INTO articles 
+		(author, title, body, topic %s)
+		VALUES
+		('%s', '%s', '%s', '%s' %s)
+		RETURNING *
+		;`,
 		articleColumn,
 		author,
 		title,
@@ -119,12 +119,17 @@ exports.insertArticle = (author, title, body, topic, img_url) => {
 	});
 };
 
-exports.getArticleCount = (limit) => {
+exports.getArticleCount = (limit, topic) => {
+	const whereClause = topic ? `WHERE topic = '${topic}'` : ``;
+
+	const formattedQuery = format(
+		`
+		SELECT count(*) FROM articles
+		%s
+		;`,
+		whereClause
+	);
 	return db
-		.query(
-			`
-			SELECT count(*) FROM articles
-			;`
-		)
+		.query(formattedQuery)
 		.then(({ rows }) => [rows[0].count, Math.ceil(rows[0].count / limit)]);
 };

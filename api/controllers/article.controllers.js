@@ -29,7 +29,7 @@ exports.getArticles = (req, res, next) => {
 
 	const promises = [
 		selectArticles(null, topic, sort_by, order, limit, page),
-		getArticleCount(limit || 10),
+		getArticleCount(limit || 10, topic),
 	];
 
 	topic && promises.push(checkTopic(topic));
