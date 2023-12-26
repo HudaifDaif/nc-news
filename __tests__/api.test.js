@@ -10,7 +10,6 @@ const {
 } = require("../db/data/test-data");
 
 const endpoints = require("../endpoints.json");
-const articles = require("../db/data/test-data/articles");
 
 beforeEach(() => seed(topicData, userData, articleData, commentData));
 
