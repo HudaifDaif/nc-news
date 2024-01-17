@@ -580,7 +580,7 @@ describe("\n/api/articles", () => {
 		});
 	});
 
-	describe.only("PATCH /api/articles/:article_id", () => {
+	describe("PATCH /api/articles/:article_id", () => {
 		it("200: should respond with an article object with the value of the request object's inc_votes property", () => {
 			return request(app)
 				.get("/api/articles/2")
@@ -591,18 +591,20 @@ describe("\n/api/articles", () => {
 					return request(app)
 						.patch("/api/articles/2")
 						.send({
-							inc_votes: 3,
+							inc_votes: 1,
+							username: "lurker"
 						})
 						.expect(200)
 						.then(({ body }) => {
 							let patchBody = body;
 
 							expect(patchBody.article.votes).toBe(
-								getBody.article.votes + 3
+								getBody.article.votes + 1
 							);
 						});
 				});
 		});
+		
 		it("200: should be able to decrement votes when given a negative value", () => {
 			return request(app)
 				.get("/api/articles/2")
@@ -613,14 +615,15 @@ describe("\n/api/articles", () => {
 					return request(app)
 						.patch("/api/articles/2")
 						.send({
-							inc_votes: -25,
+							inc_votes: -1,
+							username: "lurker",
 						})
 						.expect(200)
 						.then(({ body }) => {
 							let patchBody = body;
 
 							expect(patchBody.article.votes).toBe(
-								getBody.article.votes - 25
+								getBody.article.votes - 1
 							);
 						});
 				});
@@ -631,9 +634,42 @@ describe("\n/api/articles", () => {
 				.expect(404)
 				.send({
 					inc_votes: 0,
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' when trying to increment by more than 1 for a single article as the same user", () => {
+			return request(app)
+				.get("/api/articles/2")
+				.expect(200)
+				.then(({ body }) => {
+					let getBody = body;
+
+					return request(app)
+						.patch("/api/articles/2")
+						.send({
+							inc_votes: 1,
+							username: "lurker",
+						})
+						.expect(200)
+						.then(({ body }) => {
+							let patchBody = body;
+
+							expect(patchBody.article.votes).toBe(
+								getBody.article.votes + 1
+							);
+						})
+						.then(() => {
+							return request(app)
+								.patch("/api/articles/2")
+								.send({
+									inc_votes: 1,
+									username: "lurker",
+								})
+								.expect(400);
+						});
 				});
 		});
 		it("400: should respond with a message of 'Bad Request' when given an invalid article_id", () => {
@@ -642,6 +678,7 @@ describe("\n/api/articles", () => {
 				.expect(400)
 				.send({
 					inc_votes: 0,
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -653,6 +690,7 @@ describe("\n/api/articles", () => {
 				.expect(400)
 				.send({
 					votes: 0,
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -664,6 +702,7 @@ describe("\n/api/articles", () => {
 				.expect(400)
 				.send({
 					inc_votes: "str",
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");

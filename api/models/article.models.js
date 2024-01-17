@@ -66,20 +66,56 @@ exports.selectArticles = (id, topic, sort, order, limit, page) => {
 	});
 };
 
-exports.updateArticle = (votes, id) => {
-	return db
-		.query(
+exports.updateArticle = async (votes, id, username) => {
+	const checkVote = await db.query(
+		`
+		SELECT * FROM votes
+		WHERE username = $1
+		AND article_id = $2
+		;`,
+		[username, id]
+	);
+	const userVote = checkVote.rows[0];
+	const newVoteValue = userVote ? userVote.vote_value + votes : votes;
+
+	if (newVoteValue === -1 || newVoteValue === 0 || newVoteValue === 1) {
+		const { rows } = await db.query(
 			`
-        UPDATE articles
-        SET votes = votes + $1
-        WHERE article_id = $2
-        RETURNING *
-        ;`,
-			[votes, id]
-		)
-		.then(({ rows }) => {
-			return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
-		});
+				UPDATE articles
+				SET votes = votes + $1
+				WHERE article_id = $2
+				RETURNING *
+				;`,
+			[newVoteValue, id]
+		);
+
+		if (userVote) {
+			await db.query(
+				`
+				UPDATE votes
+				SET vote_value = $1
+				WHERE username = $2
+				AND article_id = $3
+				RETURNING *
+				;`,
+				[newVoteValue, username, id]
+			);
+		} else {
+			await db.query(
+				`
+					INSERT INTO votes
+					(username, article_id, vote_value)
+					VALUES
+					($1, $2, $3)
+					;`,
+				[username, id, newVoteValue]
+			);
+		}
+
+		return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
+	} else {
+		return Promise.reject({ status: 400 });
+	}
 };
 
 exports.insertArticle = (author, title, body, topic, img_url) => {
