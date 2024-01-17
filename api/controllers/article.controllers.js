@@ -44,8 +44,9 @@ exports.getArticles = (req, res, next) => {
 exports.patchArticleById = (req, res, next) => {
 	const id = req.params.article_id;
 	const votes = req.body.inc_votes;
+	const username = req.body.username;
 
-	updateArticle(votes, id)
+	updateArticle(votes, id, username)
 		.then((article) => {
 			res.status(200).send({ article });
 		})

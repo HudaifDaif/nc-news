@@ -1,4 +1,4 @@
-const { getUsers } = require("../api/controllers/users.controllers");
+const { getUsers } = require("../controllers/users.controllers");
 
 const usersRouter = require("express").Router();
 

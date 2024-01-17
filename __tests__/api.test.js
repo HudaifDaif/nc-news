@@ -591,18 +591,20 @@ describe("\n/api/articles", () => {
 					return request(app)
 						.patch("/api/articles/2")
 						.send({
-							inc_votes: 3,
+							inc_votes: 1,
+							username: "lurker",
 						})
 						.expect(200)
 						.then(({ body }) => {
 							let patchBody = body;
 
 							expect(patchBody.article.votes).toBe(
-								getBody.article.votes + 3
+								getBody.article.votes + 1
 							);
 						});
 				});
 		});
+
 		it("200: should be able to decrement votes when given a negative value", () => {
 			return request(app)
 				.get("/api/articles/2")
@@ -613,14 +615,15 @@ describe("\n/api/articles", () => {
 					return request(app)
 						.patch("/api/articles/2")
 						.send({
-							inc_votes: -25,
+							inc_votes: -1,
+							username: "lurker",
 						})
 						.expect(200)
 						.then(({ body }) => {
 							let patchBody = body;
 
 							expect(patchBody.article.votes).toBe(
-								getBody.article.votes - 25
+								getBody.article.votes - 1
 							);
 						});
 				});
@@ -631,9 +634,42 @@ describe("\n/api/articles", () => {
 				.expect(404)
 				.send({
 					inc_votes: 0,
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Not Found");
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' when trying to increment by more than 1 for a single article as the same user", () => {
+			return request(app)
+				.get("/api/articles/2")
+				.expect(200)
+				.then(({ body }) => {
+					let getBody = body;
+
+					return request(app)
+						.patch("/api/articles/2")
+						.send({
+							inc_votes: 1,
+							username: "lurker",
+						})
+						.expect(200)
+						.then(({ body }) => {
+							let patchBody = body;
+
+							expect(patchBody.article.votes).toBe(
+								getBody.article.votes + 1
+							);
+						})
+						.then(() => {
+							return request(app)
+								.patch("/api/articles/2")
+								.send({
+									inc_votes: 1,
+									username: "lurker",
+								})
+								.expect(400);
+						});
 				});
 		});
 		it("400: should respond with a message of 'Bad Request' when given an invalid article_id", () => {
@@ -642,6 +678,7 @@ describe("\n/api/articles", () => {
 				.expect(400)
 				.send({
 					inc_votes: 0,
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -653,6 +690,7 @@ describe("\n/api/articles", () => {
 				.expect(400)
 				.send({
 					votes: 0,
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -664,6 +702,7 @@ describe("\n/api/articles", () => {
 				.expect(400)
 				.send({
 					inc_votes: "str",
+					username: "lurker",
 				})
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -1145,14 +1184,14 @@ describe("\n/api/comments", () => {
 							expect(body.msg).toBe("Not Found");
 						});
 				});
-				// 	});
-				// 	it("200: should respond with a total_count property that displays the total number of comments", () => {
-				// 		return request(app)
-				// 			.get("/api/articles/1/comments")
-				// 			.expect(200)
-				// 			.then(({ body }) => {
-				// 				expect(body).toHaveProperty("total_count");
-				// });
+			});
+			it("200: should respond with a total_count property that displays the total number of comments", () => {
+				return request(app)
+					.get("/api/articles/1/comments")
+					.expect(200)
+					.then(({ body }) => {
+						expect(body).toHaveProperty("total_count");
+					});
 			});
 		});
 	});
@@ -1163,9 +1202,9 @@ describe("\n/api/comments", () => {
 			return db
 				.query(
 					`
-			SELECT * FROM comments
-			WHERE comment_id = 5
-			;`
+					SELECT * FROM comments
+					WHERE comment_id = 5
+					;`
 				)
 				.then(({ rows }) => {
 					currVotes = rows[0].votes;
@@ -1173,10 +1212,10 @@ describe("\n/api/comments", () => {
 				.then(() => {
 					return request(app)
 						.patch("/api/comments/5")
-						.send({ inc_votes: 12 })
+						.send({ inc_votes: 1, username: "lurker" })
 						.expect(200)
 						.then(({ body }) => {
-							expect(body.comment.votes).toBe(currVotes + 12);
+							expect(body.comment.votes).toBe(currVotes + 1);
 						});
 				});
 		});
@@ -1195,17 +1234,45 @@ describe("\n/api/comments", () => {
 				.then(() => {
 					return request(app)
 						.patch("/api/comments/1")
-						.send({ inc_votes: -10 })
+						.send({ inc_votes: -1, username: "lurker" })
 						.expect(200)
 						.then(({ body }) => {
-							expect(body.comment.votes).toBe(currVotes - 10);
+							expect(body.comment.votes).toBe(currVotes - 1);
+						});
+				});
+		});
+		it("400: should respond with a message of 'Bad Request' when trying to increment by more than 1 for a single comment as the same user", () => {
+			let currVotes;
+			return db
+				.query(
+					`
+					SELECT * FROM comments
+					WHERE comment_id = 1
+					;`
+				)
+				.then(({ rows }) => {
+					currVotes = rows[0].votes;
+				})
+				.then(() => {
+					return request(app)
+						.patch("/api/comments/1")
+						.send({ inc_votes: -1, username: "lurker" })
+						.expect(200)
+						.then(({ body }) => {
+							expect(body.comment.votes).toBe(currVotes - 1);
+						})
+						.then(() => {
+							return request(app)
+								.patch("/api/comments/1")
+								.send({ inc_votes: -1, username: "lurker" })
+								.expect(400);
 						});
 				});
 		});
 		it("400: should return a message of 'Bad Request' if given the incorrect key", () => {
 			return request(app)
 				.patch("/api/comments/1")
-				.send({ votes: -10 })
+				.send({ votes: -1, username: "lurker" })
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -1214,7 +1281,7 @@ describe("\n/api/comments", () => {
 		it("400: should return a message of 'Bad Request' if given the incorrect data type on the key of inc_votes", () => {
 			return request(app)
 				.patch("/api/comments/1")
-				.send({ inc_votes: "ten" })
+				.send({ inc_votes: "ten", username: "lurker" })
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");
@@ -1223,7 +1290,7 @@ describe("\n/api/comments", () => {
 		it("404: should return a message of 'Not Found' if the comment_id is valid but doesn't exist", () => {
 			return request(app)
 				.patch("/api/comments/999999")
-				.send({ inc_votes: 10 })
+				.send({ inc_votes: 1, username: "lurker" })
 				.expect(404)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Not Found");
@@ -1232,7 +1299,7 @@ describe("\n/api/comments", () => {
 		it("400: should return a message of 'Bad Request' if the comment_id is invalid", () => {
 			return request(app)
 				.patch("/api/comments/str")
-				.send({ inc_votes: 10 })
+				.send({ inc_votes: 1, username: "lurker" })
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("Bad Request");

@@ -6,11 +6,11 @@ const {
 	handleCustomErrors,
 	handleServerErrors,
 } = require("./api/errors");
-const apiRouter = require("./routes/api-router");
-const articlesRouter = require("./routes/articles-router");
-const usersRouter = require("./routes/users-router");
-const commentsRouter = require("./routes/comments-router");
-const topicsRouter = require("./routes/topics-router");
+const apiRouter = require("./api/routes/api-router");
+const articlesRouter = require("./api/routes/articles-router");
+const usersRouter = require("./api/routes/users-router");
+const commentsRouter = require("./api/routes/comments-router");
+const topicsRouter = require("./api/routes/topics-router");
 
 const app = express();
 

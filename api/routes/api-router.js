@@ -1,4 +1,4 @@
-const { getApi } = require("../api/controllers/api.controllers");
+const { getApi } = require("../controllers/api.controllers");
 
 const apiRouter = require("express").Router();
 

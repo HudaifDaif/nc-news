@@ -2,7 +2,7 @@ const {
 	deleteCommentById,
 	postComment,
 	patchCommentById,
-} = require("../api/controllers/comments.controllers");
+} = require("../controllers/comments.controllers");
 
 const commentsRouter = require("express").Router();
 
