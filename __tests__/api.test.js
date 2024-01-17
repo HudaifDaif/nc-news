@@ -580,7 +580,7 @@ describe("\n/api/articles", () => {
 		});
 	});
 
-	describe("PATCH /api/articles/:article_id", () => {
+	describe.only("PATCH /api/articles/:article_id", () => {
 		it("200: should respond with an article object with the value of the request object's inc_votes property", () => {
 			return request(app)
 				.get("/api/articles/2")

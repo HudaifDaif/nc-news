@@ -1,4 +1,4 @@
-const endpoints = require("../../endpoints");
+const endpoints = require("../../endpoints.json");
 
 exports.listEndpoints = () => {
 	return endpoints;
