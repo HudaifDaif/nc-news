@@ -57,8 +57,8 @@ const seed = (topicData, userData, articleData, commentData) => {
       CREATE TABLE votes (
         vote_id SERIAL PRIMARY KEY,
         username VARCHAR REFERENCES users(username) NOT NULL,
-        article_id INT REFERENCES articles(article_id) NOT NULL,
-        comment_id INT REFERENCES comments(comment_id),
+        article_id INT REFERENCES articles(article_id) DEFAULT NULL,
+        comment_id INT REFERENCES comments(comment_id) DEFAULT NULL,
         vote_value INT DEFAULT 0 CHECK (vote_value = ANY(ARRAY[-1, 0, 1]))
       )`))
 		.then(() => {

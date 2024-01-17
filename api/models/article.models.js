@@ -72,6 +72,7 @@ exports.updateArticle = async (votes, id, username) => {
 		SELECT * FROM votes
 		WHERE username = $1
 		AND article_id = $2
+		AND comment_id IS NULL
 		;`,
 		[username, id]
 	);

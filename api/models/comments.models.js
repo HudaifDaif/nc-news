@@ -68,23 +68,61 @@ exports.checkComment = (id) => {
 		});
 };
 
-exports.updateCommentById = (votes, id) => {
+exports.updateCommentById = async (votes, comment_id, username) => {
 	if (!Number(votes)) return Promise.reject({ status: 400 });
 
-	const formattedQuery = format(
+	const checkVote = await db.query(
 		`
-		UPDATE comments
-		SET votes = votes + %s
-		WHERE comment_id = %s
-		RETURNING *
+		SELECT * FROM votes
+		WHERE username = $1
+		AND comment_id = $2
 		;`,
-		votes,
-		id
+		[username, comment_id]
 	);
 
-	return db.query(formattedQuery).then(({ rows }) => {
-		return rows.length ? rows[0] : Promise.reject({ status: 404 });
-	});
+	const userVote = checkVote.rows[0];
+	const newVoteValue = userVote ? userVote.vote_value + votes : votes;
+
+	if (newVoteValue === -1 || newVoteValue === 0 || newVoteValue === 1) {
+		const formattedQuery = format(
+			`
+			UPDATE comments
+			SET votes = votes + %s
+			WHERE comment_id = %s
+			RETURNING *
+			;`,
+			votes,
+			comment_id
+		);
+
+		const { rows } = await db.query(formattedQuery);
+
+		if (userVote) {
+			await db.query(
+				`
+				UPDATE votes
+				SET vote_value = %s
+				WHERE username = %s
+				AND comment_id = %s
+				;`,
+				[newVoteValue, username, comment_id]
+			);
+		} else {
+			await db.query(
+				`
+				INSERT INTO votes
+				(username, comment_id, vote_value)
+				VALUES
+				($1, $2, $3)
+				;`,
+				[username, comment_id, newVoteValue]
+			);
+		}
+
+		return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
+	} else {
+		return Promise.reject({ status: 400 });
+	}
 };
 
 exports.getCommentCount = (limit, article_id) => {
