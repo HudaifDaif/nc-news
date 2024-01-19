@@ -21,11 +21,12 @@ exports.getCommentsById = (req, res, next) => {
 
 	Promise.all(promises)
 		.then((resolved) => {
-			const comments = resolved[0];
+			const comments = resolved[0][0];
+			const userVotes = resolved[0][1];
 			const [total_count, pages] = resolved[1];
 
 			if (page > pages) return Promise.reject({ status: 404 });
-			res.status(200).send({ comments, total_count, pages });
+			res.status(200).send({ comments, total_count, pages , userVotes});
 		})
 		.catch(next);
 };

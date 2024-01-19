@@ -20,7 +20,18 @@ exports.selectCommentsById = (article_id, limit, page) => {
 		offsetClause
 	);
 
-	return db.query(formattedQuery).then(({ rows }) => rows);
+	return db.query(formattedQuery).then(async ({ rows }) => {
+		if (rows.length) {
+			const userVotes = await db.query(`
+			SELECT * FROM votes
+			WHERE article_id = ${article_id} AND comment_id IS NOT NULL
+			;`);
+
+			return [rows, userVotes.rows];
+		}
+
+		return [rows];
+	});
 };
 
 exports.insertComments = (article_id, author, body) => {
