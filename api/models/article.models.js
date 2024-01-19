@@ -60,8 +60,18 @@ exports.selectArticles = (id, topic, sort, order, limit, page) => {
 		offsetClause
 	);
 
-	return db.query(formattedQuery).then(({ rows }) => {
+	return db.query(formattedQuery).then(async ({ rows }) => {
 		if (!rows.length && !topic) return Promise.reject({ status: 404 });
+
+		if (rows.length) {
+			const userVotes = await db.query(`
+			SELECT * FROM votes
+			WHERE article_id = ${id} AND comment_id IS NULL
+			;`);
+
+			rows[0].userVotes = userVotes.rows;
+		}
+
 		return rows;
 	});
 };
