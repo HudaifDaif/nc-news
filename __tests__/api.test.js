@@ -640,7 +640,7 @@ describe("\n/api/articles", () => {
 					expect(body.msg).toBe("Not Found");
 				});
 		});
-		it("400: should respond with a message of 'Bad Request' when trying to increment by more than 1 for a single article as the same user", () => {
+		it("200: should be able to change user vote after increment", () => {
 			return request(app)
 				.get("/api/articles/2")
 				.expect(200)
@@ -665,10 +665,33 @@ describe("\n/api/articles", () => {
 							return request(app)
 								.patch("/api/articles/2")
 								.send({
-									inc_votes: 1,
+									inc_votes: 0,
 									username: "lurker",
 								})
-								.expect(400);
+								.expect(200)
+								.then(({ body }) => {
+									let patchBody = body;
+
+									expect(patchBody.article.votes).toBe(
+										getBody.article.votes
+									);
+								});
+						})
+						.then(() => {
+							return request(app)
+								.patch("/api/articles/2")
+								.send({
+									inc_votes: -1,
+									username: "lurker",
+								})
+								.expect(200)
+								.then(({ body }) => {
+									let patchBody = body;
+
+									expect(patchBody.article.votes).toBe(
+										getBody.article.votes - 1
+									);
+								});
 						});
 				});
 		});
