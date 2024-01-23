@@ -89,39 +89,49 @@ exports.updateArticle = async (votes, id, username) => {
 	const userVote = checkVote.rows[0];
 	const newVoteValue = userVote ? userVote.vote_value + votes : votes;
 
-	if (newVoteValue === -1 || newVoteValue === 0 || newVoteValue === 1) {
+	if (userVote) {
+		await db.query(
+			`
+			UPDATE votes
+			SET vote_value = $1
+			WHERE username = $2
+			AND article_id = $3
+			RETURNING *
+			;`,
+			[newVoteValue, username, id]
+		);
+	} else {
+		await db.query(
+			`
+				INSERT INTO votes
+				(username, article_id, vote_value)
+				VALUES
+				($1, $2, $3)
+				;`,
+			[username, id, newVoteValue]
+		);
+	}
+
+	if (votes === -1 || votes === 0 || votes === 1) {
+		const newVoteCount = await db.query(
+			`SELECT votes.article_id, SUM(votes.vote_value) AS vote_count FROM votes
+			WHERE article_id = $1
+			AND comment_id IS NULL
+			GROUP BY votes.article_id
+			;`,
+			[id]
+		);
+		const updatedVotes = newVoteCount.rows[0].vote_count;
+
 		const { rows } = await db.query(
 			`
 				UPDATE articles
-				SET votes = votes + $1
+				SET votes = $1
 				WHERE article_id = $2
 				RETURNING *
 				;`,
-			[newVoteValue, id]
+			[updatedVotes, id]
 		);
-
-		if (userVote) {
-			await db.query(
-				`
-				UPDATE votes
-				SET vote_value = $1
-				WHERE username = $2
-				AND article_id = $3
-				RETURNING *
-				;`,
-				[newVoteValue, username, id]
-			);
-		} else {
-			await db.query(
-				`
-					INSERT INTO votes
-					(username, article_id, vote_value)
-					VALUES
-					($1, $2, $3)
-					;`,
-				[username, id, newVoteValue]
-			);
-		}
 
 		return !rows.length ? Promise.reject({ status: 404 }) : rows[0];
 	} else {
