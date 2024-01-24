@@ -86,12 +86,13 @@ exports.updateArticle = async (votes, id, username) => {
 		;`,
 		[username, id]
 	);
-	
+
 	const userVote = checkVote.rows[0];
 
-	if (userVote) {
-		await db.query(
-			`
+	if (votes === -1 || votes === 0 || votes === 1) {
+		if (userVote) {
+			await db.query(
+				`
 				UPDATE votes
 				SET vote_value = $1
 				WHERE username = $2
@@ -99,21 +100,20 @@ exports.updateArticle = async (votes, id, username) => {
 				AND comment_id IS NULL
 				RETURNING *
 				;`,
-			[votes, username, id]
-		);
-	} else {
-		await db.query(
-			`
+				[votes, username, id]
+			);
+		} else {
+			await db.query(
+				`
 				INSERT INTO votes
 				(username, article_id, vote_value)
 				VALUES
 				($1, $2, $3)
 				;`,
-			[username, id, votes]
-		);
-	}
+				[username, id, votes]
+			);
+		}
 
-	if (votes === -1 || votes === 0 || votes === 1) {
 		const newVoteCount = await db.query(
 			`
 			SELECT votes.article_id, SUM(votes.vote_value) AS vote_count FROM votes
